@@ -150,36 +150,6 @@ public class Client {
 			return certification;
 		}
 		
-	//MAIN METHOD
-		public static void main(String[] args) throws Exception {
-			
-			Client client = new Client();
-			client.reciever();
-			
-			//login
-			Scanner scanner = new Scanner(System.in);
-			
-			do {
-				System.out.println("enter username : ");
-				String username = scanner.nextLine();
-				
-				System.out.println("enter Password:");
-				String password = scanner.nextLine();
-				
-				client.login(username, password);
-			} 
-			while(!client.certification);
-			System.out.println("login success");
-			
-			//broadcast message
-			Thread.sleep(3000);
-			System.out.println("enter broadcast message");
-			String message = scanner.nextLine();
-			client.broadcastMessage(message);
-			
-
-
-		}
 		
 		
 
