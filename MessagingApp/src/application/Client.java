@@ -146,6 +146,10 @@ public class Client {
 			
 		}
 		
+		public boolean getCertification() {
+			return certification;
+		}
+		
 	//MAIN METHOD
 		public static void main(String[] args) throws Exception {
 			
@@ -155,7 +159,6 @@ public class Client {
 			//login
 			Scanner scanner = new Scanner(System.in);
 			
-			boolean result = false;
 			do {
 				System.out.println("enter username : ");
 				String username = scanner.nextLine();

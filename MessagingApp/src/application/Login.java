@@ -18,9 +18,9 @@ import javafx.stage.Stage;
 import javafx.geometry.HPos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-
-
 import java.io.File;
+import java.io.IOException;
+
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -32,7 +32,7 @@ import javafx.stage.Stage;
 import application.Homepage;
 
 public class Login extends Application {
-	
+	Client client;
 	
 	 public static void main(String[] args) {
 	        launch(args);
@@ -41,7 +41,7 @@ public class Login extends Application {
     @Override
     public void start(Stage primaryStage) {
     	
-    	double scaleFactor = 1.8;
+    	double scaleFactor = 1.45;
     	
         primaryStage.setTitle("Login");
 
@@ -92,21 +92,29 @@ public class Login extends Application {
         btn.setOnAction(e -> {
             String username = userTextField.getText();
             String password = pwBox.getText();
-
+            try {
+				client.login(username, password);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+            while (!client.getCertification()); // wait for server response
+            Homepage homepage = new Homepage();
+            homepage.showHomepage(primaryStage, client);
             // Add login process here.....
 
             // Clear the text fields after login
            
             
-          if ("username".equals(username) && "password".equals(password)) {
-            Homepage homepage = new Homepage();
-            homepage.showHomepage(primaryStage);
-            
-          }
-          else {
-        	  userTextField.clear();
-              pwBox.clear();
-          } 
+//          if ("username".equals(username) && "password".equals(password)) {
+//            Homepage homepage = new Homepage();
+//            homepage.showHomepage(primaryStage);
+//            
+//          }
+//          else {
+//        	  userTextField.clear();
+//              pwBox.clear();
+//          } 
           
         });
    
@@ -121,8 +129,9 @@ public class Login extends Application {
     }
     
 
-    public void showLogin(Stage stage) {
-        try {
+    public void showLogin(Stage stage, Client client) {
+        this.client = client;
+    	try {
             start(stage);
         } catch (Exception e) {
             e.printStackTrace();

@@ -17,7 +17,7 @@ public class Homepage extends Application {
 	private ListView<File> inboxListView;
     private TextArea conversationTextArea;
     private File selectedFile;
-    
+    Client client;
     
     
    
@@ -204,7 +204,7 @@ public class Homepage extends Application {
             
 
             Login login = new Login();
-            login.showLogin(primaryStage);
+            login.showLogin(primaryStage, client);
             
          
           
@@ -215,7 +215,7 @@ public class Homepage extends Application {
             
 
             Create create = new Create();
-            create.showCreate(primaryStage);
+            create.showCreate(primaryStage, client);
           
         });
         
@@ -232,7 +232,8 @@ public class Homepage extends Application {
 
 
 
-    public void showHomepage(Stage stage) {
+    public void showHomepage(Stage stage, Client client) {
+    	this.client = client;
         try {
             start(stage);
         } catch (Exception e) {
