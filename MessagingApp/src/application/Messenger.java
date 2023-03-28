@@ -138,7 +138,7 @@ public class Messenger extends Application{
 		Thread.sleep(1000);
 		
 	}
-	
+	  
 	public void SuccessfulLoginHandler(SuccessfulLoginRequest request) {
 		if(!request.getResult()) {
 			this.certification = false;
