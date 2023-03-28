@@ -146,7 +146,7 @@ public class Messenger extends Application{
 			mainStage= homePage();
 			mainStage.show();
 			 
-			
+			 
 			
 		}else {
 			this.certification=true;

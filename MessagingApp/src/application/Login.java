@@ -21,6 +21,9 @@ import javafx.scene.image.ImageView;
 
 
 import java.io.File;
+import java.io.IOException;
+import java.net.UnknownHostException;
+
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -32,18 +35,16 @@ import javafx.stage.Stage;
 import application.Homepage;
 
 public class Login extends Application {
+	Client client;
 	
 	
 	 public static void main(String[] args) {
 	        launch(args);
 	    }
 	 
-	 public String getUsername() {
-		 return this.username;
-	 }
-	 public String getPassword() {
-		 return this.password;
-	 }
+	public void init() throws UnknownHostException, ClassNotFoundException, IOException {
+		client = new Client();
+	}
 	 
     @Override
     public void start(Stage primaryStage) {
@@ -60,6 +61,7 @@ public class Login extends Application {
         grid.setPadding(new Insets(25 * scaleFactor, 25 * scaleFactor, 25 * scaleFactor, 25 * scaleFactor));
         
         //Add Company Logo
+        
         Image logoImage = new Image("logo-social.png");
         ImageView logoView = new ImageView(logoImage);
         grid.add(logoView, 0, 0, 2, 1);
@@ -99,9 +101,14 @@ public class Login extends Application {
         btn.setOnAction(e -> {
             String username = userTextField.getText();
             String password = pwBox.getText();
+            try {
+				client.login(username, password);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
             
-            this.password=username;
-            this.password= password;
+
 
             // Add login process here.....
 
@@ -130,7 +137,7 @@ public class Login extends Application {
         
     }
     
-
+//Unnecessary
     public void showLogin(Stage stage) {
         try {
             start(stage);
