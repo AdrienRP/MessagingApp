@@ -38,12 +38,6 @@ public class Login extends Application {
 	        launch(args);
 	    }
 	 
-	 public String getUsername() {
-		 return this.username;
-	 }
-	 public String getPassword() {
-		 return this.password;
-	 }
 	 
     @Override
     public void start(Stage primaryStage) {
@@ -101,7 +95,7 @@ public class Login extends Application {
             String password = pwBox.getText();
 
             try {
-				client.login(username, password);
+				client.attemptLogin(username, password);
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
