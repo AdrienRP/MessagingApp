@@ -22,7 +22,7 @@ public class Create extends Application {
     private TextArea conversationTextArea;
     private TextArea groupSettings;
     private File selectedFile;
-    
+    Client client;
    
     
     
@@ -218,7 +218,7 @@ public class Create extends Application {
             
 
         	Homepage homepage = new Homepage();
-            homepage.showHomepage(primaryStage);
+            homepage.showHomepage(primaryStage, client);
             
         });
         
@@ -227,7 +227,7 @@ public class Create extends Application {
             
 
             Login login = new Login();
-            login.showLogin(primaryStage);
+            login.showLogin(primaryStage, client);
           
         });
         
@@ -256,7 +256,8 @@ public class Create extends Application {
 
 
 
-	public void showCreate(Stage stage) {
+	public void showCreate(Stage stage, Client client) {
+		this.client = client;
 		try {
             start(stage);
         } catch (Exception e) {

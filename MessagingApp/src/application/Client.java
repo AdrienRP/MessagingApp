@@ -161,119 +161,12 @@ public class Client {
 			
 		}
 		
-	//UI METHODS
-		public Stage loginScreen() {
-			Stage primaryStage = new Stage();
-			
-			double scaleFactor = 1.8;
-			
-			primaryStage.setTitle("Login");
 
-	        // Create a GridPane layout
-	        GridPane grid = new GridPane();
-	        grid.setAlignment(Pos.CENTER);
-	        grid.setHgap(10);
-	        grid.setVgap(10);
-	        grid.setPadding(new Insets(25 * scaleFactor, 25 * scaleFactor, 25 * scaleFactor, 25 * scaleFactor));
-	        
-	        //Add Company Logo
-	        Image logoImage = new Image("logo-social.png");
-	        ImageView logoView = new ImageView(logoImage);
-	        grid.add(logoView, 0, 0, 2, 1);
-	        GridPane.setHalignment(logoView, HPos.CENTER); 
-	        
-	     
-	        // Add Company Name Label
-	        Label scenetitle = new Label("Company Name");
-	        scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 20));
-	        grid.add(scenetitle, 0, 1, 2, 1);
-	        GridPane.setHalignment(scenetitle, HPos.CENTER);
-	       
-
-	        // Add a label for the username
-	        Label userName = new Label("Username:");
-	        grid.add(userName, 0, 2);
-
-	        // Add a text field for the username
-	        TextField userTextField = new TextField();
-	        grid.add(userTextField, 1, 2);
-
-	        // Add a label for the password
-	        Label pw = new Label("Password:");
-	        grid.add(pw, 0, 3);
-
-	        // Add a password field for the password
-	        PasswordField pwBox = new PasswordField();
-	        grid.add(pwBox, 1, 3);
-
-	        // Add a login button
-	        Button btn = new Button("Login");
-	        grid.add(btn, 1, 4);
-	        btn.setStyle("-fx-background-color: #8BC34A; -fx-text-fill: white;");
-	        
-	        
-	        btn.setOnAction(e -> {
-	        	
-	            String username = userTextField.getText();
-	            String password = pwBox.getText();;
-	            
-	            System.out.println(username + password);
-	          
-	        });
-			
-			return primaryStage;
-		}
-		
-		
-		//MAIN METHOD
-		public static void main(String[] args) throws Exception {
-			
-			Client client = new Client();
-			client.reciever();
-			//login
-			Stage loginStage = client.loginScreen();
-			try {
-				BorderPane root = new BorderPane();
-				Scene scene = new Scene(root,400,400);
-				//scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-				loginStage.setScene(scene);
-				Login login = new Login();
-				//login.showLogin(loginStage);
-			} catch(Exception e) {
-				e.printStackTrace();
-			}
-			
-			loginStage.show();
-			
-
-	
-			
-			Scanner scanner = new Scanner(System.in);
-			
-	
-			
-			boolean result = false;
-			do {
-				System.out.println("enter username : ");
-				String username = scanner.nextLine();
-				
-				System.out.println("enter Password:");
-				String password = scanner.nextLine(); 
-				
-				client.attemptLogin(username, password);
-			} 
-			while(!client.certification);
-			System.out.println("login success");
-			
-			//broadcast message
-			Thread.sleep(3000);
-			System.out.println("enter broadcast message");
-			String message = scanner.nextLine();
-			client.broadcastMessage(message);
-			
-
+		public boolean getCertification() {
+			return certification;
 
 		}
+		
 		
 		
 
