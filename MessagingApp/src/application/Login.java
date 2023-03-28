@@ -38,6 +38,13 @@ public class Login extends Application {
 	        launch(args);
 	    }
 	 
+	 public String getUsername() {
+		 return this.username;
+	 }
+	 public String getPassword() {
+		 return this.password;
+	 }
+	 
     @Override
     public void start(Stage primaryStage) {
     	
@@ -92,6 +99,7 @@ public class Login extends Application {
         btn.setOnAction(e -> {
             String username = userTextField.getText();
             String password = pwBox.getText();
+
             try {
 				client.login(username, password);
 			} catch (Exception e1) {
@@ -101,6 +109,7 @@ public class Login extends Application {
             while (!client.getCertification()); // wait for server response
             Homepage homepage = new Homepage();
             homepage.showHomepage(primaryStage, client);
+
             // Add login process here.....
 
             // Clear the text fields after login

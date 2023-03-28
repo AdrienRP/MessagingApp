@@ -12,6 +12,21 @@ import Requests.BroadcastRequest;
 import Requests.LoginRequest;
 import Requests.Request;
 import Requests.SuccessfulLoginRequest;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.stage.Stage;
 
 public class Client {
 	//DATA MEMBERS
@@ -96,7 +111,7 @@ public class Client {
 			
 		}
 		
-		public void login(String username, String password) throws IOException, Exception {
+		public void attemptLogin(String username, String password) throws IOException, Exception {
 			// create LoginRequest object
 			LoginRequest loginRequest = new LoginRequest(username, password);
 			this.username =username;
@@ -146,8 +161,10 @@ public class Client {
 			
 		}
 		
+
 		public boolean getCertification() {
 			return certification;
+
 		}
 		
 		
