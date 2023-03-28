@@ -38,6 +38,13 @@ public class Login extends Application {
 	        launch(args);
 	    }
 	 
+	 public String getUsername() {
+		 return this.username;
+	 }
+	 public String getPassword() {
+		 return this.password;
+	 }
+	 
     @Override
     public void start(Stage primaryStage) {
     	
@@ -92,6 +99,9 @@ public class Login extends Application {
         btn.setOnAction(e -> {
             String username = userTextField.getText();
             String password = pwBox.getText();
+            
+            this.password=username;
+            this.password= password;
 
             // Add login process here.....
 
