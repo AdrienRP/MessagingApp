@@ -29,6 +29,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -42,7 +43,9 @@ public class Messenger extends Application{
 		private ObjectInputStream is;
 		private boolean certification = false;
 		private String username;
-		Stage mainStage;
+		Stage mainStage = new Stage();
+		Stage arg0;
+		
 	
 //INIT
 	public void init() throws UnknownHostException, IOException {
@@ -59,7 +62,8 @@ public class Messenger extends Application{
 	@Override
 	public void start(Stage arg0) throws Exception {
 		// TODO Auto-generated method stub
-		mainStage = loginScene();
+		this.arg0=arg0;
+		mainStage.setScene(loginScene());
 		mainStage.show();
 	}
 //STOP
@@ -116,6 +120,16 @@ public class Messenger extends Application{
 		return this.username;
 	}
 	
+	public void getStatus() throws IOException {
+		Request msg = new Request("GetStatus");
+		
+		this.os.writeObject(msg);
+		this.os.reset();
+		System.out.println("GetStatus: object sent");
+		
+	}
+	
+
 	public void testMessage(String hello) throws IOException, ClassNotFoundException {
 
 		Request msg = new Request( hello);
@@ -125,6 +139,9 @@ public class Messenger extends Application{
 		System.out.println("test: object sent");
 		
 	}
+	
+	
+	
 	
 	public void login(String username, String password) throws IOException, Exception {
 		// create LoginRequest object
@@ -143,18 +160,25 @@ public class Messenger extends Application{
 		if(!request.getResult()) {
 			this.certification = false;
 			System.out.println(request.getMessage());
-			mainStage= homePage();
-			mainStage.show();
-			 
-			 
+
 			
 		}else {
 			this.certification=true;
 			System.out.println(request.getMessage());
+			mainStage.hide();
+			mainStage = homePage();
+			mainStage.show();
+			
+	
+			
+	
 		}
 		
 		
 	}
+
+	
+	
 	
 	public void broadcastMessage(String message) throws IOException {
 		BroadcastRequest broadcast = new BroadcastRequest(message);
@@ -181,14 +205,10 @@ public class Messenger extends Application{
 		
 	}
 //SCENE BUILDERS
-	public Stage loginScene() {
-		
-		Stage loginStage = new Stage();
+	public Scene loginScene() {
 		
 		double scaleFactor = 1.8;
-    	
-    	loginStage.setTitle("Messenger Application");
-
+    
         // Create a GridPane layout
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
@@ -239,6 +259,16 @@ public class Messenger extends Application{
             String password = pwBox.getText();
             try {
 				login(username, password);
+				if(this.certification==true) {
+					mainStage.hide();
+					mainStage = homePage();
+					mainStage.show();
+					
+				}
+				else {
+					userTextField.clear();
+					pwBox.clear();
+				}
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -253,6 +283,7 @@ public class Messenger extends Application{
             
 
           
+          
         });
    
         
@@ -260,22 +291,20 @@ public class Messenger extends Application{
 
         // Create a scene and set it to the stage
         Scene scene = new Scene(grid, 640 * scaleFactor, 480 * scaleFactor);
-        loginStage.setScene(scene);
-        return loginStage;
+        
+        return scene;
         
 		
 	}
 
 		
-
 	public Stage homePage() {
 		ListView<File> inboxListView;
 	    TextArea conversationTextArea;
 	    File selectedFile;
 	    
 		double scaleFactor = 1.8;
-    	Stage homeStage = new Stage();
-    	homeStage.setTitle("Home");
+
 
         // Create the plus button
         Button plusButton = new Button("+");
@@ -353,10 +382,13 @@ public class Messenger extends Application{
         
         // Create the scene
         Scene scene = new Scene(layout, 640 * scaleFactor, 480 * scaleFactor);
+        
+        Stage stage = new Stage();
+        stage.setScene(scene);
 
         // Set the scene
-        homeStage.setScene(scene);
-        return homeStage;
+        
+        return stage;
         
         
         
