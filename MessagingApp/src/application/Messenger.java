@@ -145,7 +145,7 @@ public class Messenger extends Application{
 			System.out.println(request.getMessage());
 			mainStage= homePage();
 			mainStage.show();
-			
+			 
 			
 		}else {
 			this.certification=true;
