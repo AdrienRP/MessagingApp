@@ -17,6 +17,7 @@ public class Homepage extends Application {
 	 ListView<File> inboxListView;
      TextArea conversationTextArea;
      File selectedFile;
+     TextField usertextField;
     
     
     

@@ -20,6 +20,7 @@ import Requests.LoginRequest;
 import Requests.Request;
 import Requests.SuccessfulLoginRequest;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -39,9 +40,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+
+import Requests.BroadcastRequest;
 
 public class Messenger extends Application{
 //DATA MEMBERS
@@ -53,6 +57,9 @@ public class Messenger extends Application{
 		Stage mainStage = new Stage();
 		Stage arg0;
 		File selectedFile;
+		TextArea conversationTextArea;
+		TextField userTextField;
+		PasswordField pwBox;
 		
 	
 //INIT
@@ -152,30 +159,41 @@ public class Messenger extends Application{
 	
 	
 	public void login(String username, String password) throws IOException, Exception {
-		// create LoginRequest object
-		LoginRequest loginRequest = new LoginRequest(username, password);
-		this.username =username;
-		
-		//send request to server
-		this.os.writeObject(loginRequest);
-		this.os.reset();
-		//give client time to update certification
-		Thread.sleep(1000);
-		
+	    // create LoginRequest object
+	    LoginRequest loginRequest = new LoginRequest(username, password);
+	    this.username = username;
+
+	    //send request to server
+	    this.os.writeObject(loginRequest);
+	    this.os.reset();
+	    //give client time to update certification
+	    Thread.sleep(1000);
+
+	    Platform.runLater(() -> {
+	        if (this.certification) {
+	            mainStage.hide();
+	            mainStage = homePage();
+	            mainStage.show();
+	        } else {
+	            userTextField.clear();
+	            pwBox.clear();
+	        }
+	    });
 	}
 	  
 	public void SuccessfulLoginHandler(SuccessfulLoginRequest request) {
-		if(!request.getResult()) {
-			this.certification = false;
-			System.out.println(request.getMessage());
+		
+		 Label errorMessage = new Label("Invalid login");
 
-			
-		}else {
-			this.certification=true;
-			System.out.println(request.getMessage());
-			mainStage.hide();
-			mainStage = homePage();
-			mainStage.show();
+		    if (!request.getResult()) {
+		        this.certification = false;
+		        System.out.println(request.getMessage());
+		        Platform.runLater(() -> {
+		            errorMessage.setText(request.getMessage()); // Set error message
+		        });
+		    } else {
+		        this.certification = true;
+		        System.out.println(request.getMessage());
 			
 	
 			
@@ -196,10 +214,13 @@ public class Messenger extends Application{
 	}
 	
 	private void broadcastMessageReceived(BroadcastMessageRequest incoming) {
-		
-		System.out.println(">>>BROADCAST<<<");
-		System.out.println(incoming.getUser() + ": " + incoming.getMessage() );
-		System.out.println(">>>BROADCAST<<<");
+		 Platform.runLater(() -> {
+		        System.out.println(">>>BROADCAST<<<");
+		        String receivedMessage = incoming.getUser() + ": " + incoming.getMessage();
+		        System.out.println(receivedMessage);
+		        conversationTextArea.appendText(receivedMessage + "\n");
+		        System.out.println(">>>BROADCAST<<<");
+		    });
 	}
 	
 	public Socket getSocket() {
@@ -244,7 +265,7 @@ public class Messenger extends Application{
         grid.add(userName, 0, 2);
 
         // Add a text field for the username
-        TextField userTextField = new TextField();
+        userTextField = new TextField();
         grid.add(userTextField, 1, 2);
 
         // Add a label for the password
@@ -252,7 +273,7 @@ public class Messenger extends Application{
         grid.add(pw, 0, 3);
 
         // Add a password field for the password
-        PasswordField pwBox = new PasswordField();
+        pwBox = new PasswordField();
         grid.add(pwBox, 1, 3);
 
         // Add a login button
@@ -460,6 +481,7 @@ public class Messenger extends Application{
             textBox.clear();
 
             try {
+            	  broadcastMessage(message);
                 // Open the convo.txt file in append mode and write the message to it
             	FileWriter fileWriter = new FileWriter(selectedFile, true);
                 fileWriter.write(message);
