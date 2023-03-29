@@ -4,8 +4,9 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 
 public class NewConvoRequest extends Request{
-	private int convoID;
+	
 	private ArrayList<String> members;
+	private String groupName;
 
 	/**
 	 * 
@@ -17,8 +18,25 @@ public class NewConvoRequest extends Request{
 		for (String user : members) {
 			this.members.add(user);
 		}
+		this.groupName=null;
+			
+	}
+	
 		
-		// TODO Auto-generated constructor stub
+	public NewConvoRequest(ArrayList<String> members, String groupName) {
+		super("NewConvoRequest");
+		for (String user : members) {
+			this.members.add(user);
+		}
+		this.groupName=groupName;
+
+	}
+	
+	public ArrayList<String> getMembers() {
+		return this.members;
+	}
+	public String getGroupName() {
+		return this.groupName;
 	}
 
 }

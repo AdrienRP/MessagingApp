@@ -10,6 +10,7 @@ import Requests.BroadcastMessageRequest;
 import Requests.BroadcastRequest;
 import Requests.LoginRequest;
 import Requests.MessageRequest;
+import Requests.NewConvoRequest;
 import Requests.Request;
 import Requests.SuccessfulLoginRequest;
 
@@ -69,6 +70,11 @@ public class ClientHandler implements Runnable {
 		    	case "MessageRequest":
 		    		MessageRequest messageRequest = (MessageRequest) request;
 		    		sendMessageRequest(messageRequest);
+		    		break;
+		    		
+		    	case "NewConvoRequest":
+		    		NewConvoRequest newConvoRequest = (NewConvoRequest) request;
+		    		newConvoRequest(newConvoRequest);
 		    	}
 		    	
 		    		
@@ -150,7 +156,14 @@ public class ClientHandler implements Runnable {
 		}
 		
 	}
-	
+	public void newConvoRequest(NewConvoRequest request) {
+		Conversation conversation = new Conversation(request.getMembers(), request.getGroupName());
+		//if conversation successfully created
+		if(conversation.isUnique()) {
+			//add conversation to each user in conversation.
+			
+		}
+	}
 	public void sendMessageRequest(MessageRequest request) {
 		//handle messageRequest
 		

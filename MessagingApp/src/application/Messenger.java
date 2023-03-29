@@ -11,6 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -20,7 +21,7 @@ import Requests.LoginRequest;
 import Requests.Request;
 import Requests.SuccessfulLoginRequest;
 import Requests.MessageRequest;
-
+import Requests.NewConvoRequest;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
@@ -61,6 +62,7 @@ public class Messenger extends Application{
 		TextField userTextField;
 		PasswordField pwBox;
 		public String status;
+		public ArrayList<Integer> conversations;
 		
 	
 //INIT
@@ -217,7 +219,19 @@ public class Messenger extends Application{
 		System.out.println("test: object sent");
 		
 	}
-	public void newConvoRequest(String[] members) {
+	public void newConvoRequest(ArrayList<String> members) throws IOException {
+		members.add(this.username);
+		NewConvoRequest newConvoRequest = new NewConvoRequest(members);
+		this.os.writeObject(newConvoRequest);
+		this.os.reset();
+	//overload
+	}
+	public void newConvoRequest(ArrayList<String> members, String groupName) throws IOException {
+		members.add(this.username);
+		NewConvoRequest newConvoRequest = new NewConvoRequest(members, groupName);
+		this.os.writeObject(newConvoRequest);
+		this.os.reset();
+		
 		
 	}
 	

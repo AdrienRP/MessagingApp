@@ -17,6 +17,7 @@ public class Server {
 		public ServerSocket ss;
 		
 		public static HashMap<String,String> lc = new HashMap<String, String>();
+		
 
 		
 		
@@ -86,7 +87,13 @@ public class Server {
 	    }
 	
 
-		
+		public void loadConversations() {
+			//create conversation for every text file 1.txt, 2.txt...
+			
+		}
+		public void loadUserData() {
+			//create user object
+		}
 			
 		public void startServer() throws IOException, ClassNotFoundException {
 			System.out.println("Server Status: Running...");
