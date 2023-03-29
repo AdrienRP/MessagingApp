@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import Requests.GetAllUsersRequestResponse;
 import Requests.BroadcastMessageRequest;
 import Requests.BroadcastRequest;
 import Requests.LoginRequest;
@@ -55,7 +56,12 @@ public class ClientHandler implements Runnable {
 		    		sendBroadcast(broadcastRequest);
 		    	
 		    		break;
-		    		
+		    	case "GetAllUsersRequest":
+		    		System.out.println("asked for all users");
+		    		GetAllUsersRequestResponse response = new GetAllUsersRequestResponse(Server.userList);
+		    		out.writeObject(response);
+		    		out.flush();
+		    		break;
 		    	}
 
 		    	
@@ -92,6 +98,7 @@ public class ClientHandler implements Runnable {
 			out.flush();
 			//set username of user to handler
 			this.username= loginRequest.getUsername();
+			Server.userList.put(this.username, "online");//set user that just logged in to online
 			System.out.println("succesfullogin packet sent");
 			
 		}else {

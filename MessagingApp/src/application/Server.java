@@ -16,7 +16,8 @@ public class Server {
 		
 		public ServerSocket ss;
 		
-		public static HashMap<String,String> loginCredentials = new HashMap<String, String>();
+		public static HashMap<String,String> loginCredentials = new HashMap<String, String>();//username:password
+		public static HashMap<String,String> userList = new HashMap<String, String>();//username:activity status
 
 		
 		
@@ -31,6 +32,7 @@ public class Server {
 			for (Map.Entry<String, String> entry :
 	             mapFromFile.entrySet()) {
 	            loginCredentials.put(entry.getKey(),entry.getValue());
+	            userList.put(entry.getKey(), "offline");//set all users to offline initially
 	        }
 		}
 		

@@ -3,6 +3,8 @@ package application;
 import java.io.*;
 import javafx.stage.FileChooser;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -36,7 +38,7 @@ public class Create extends Application {
 
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws IOException {
     	
     	double scaleFactor = 1.8;
     	
@@ -99,35 +101,17 @@ public class Create extends Application {
        
         
         // Create the contactList
-        contactList = new ListView<>();
+        ObservableList<String> contactListContents = FXCollections.observableArrayList();
+        ListView<String> contactList = new ListView(contactListContents);
         contactList.setPrefWidth(150 * scaleFactor); // set preferred width
         contactList.setPrefHeight(400 * scaleFactor);
         
-       
-        // Add the files to the contact list
-        try {
-            File contactsFile = new File("src/contacts.txt");
-            FileReader fileReader = new FileReader(contactsFile);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            List<String> usernames = new ArrayList<>();
-            String username;
 
-            while ((username = bufferedReader.readLine()) != null) {
-                usernames.add(username);
-            }
+            
+        // Add the usernames to the contactList
+        client.requestAllUsers(contactListContents);
+        //contactList.getItems().addAll(client.getUserList());
 
-            bufferedReader.close();
-            fileReader.close();
-
-            // Sort the usernames alphabetically
-            Collections.sort(usernames);
-
-            // Add the sorted usernames to the contactList
-            contactList.getItems().addAll(usernames);
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
         
         //Create vbox for contact label and contacts
         VBox vbox2 = new VBox();

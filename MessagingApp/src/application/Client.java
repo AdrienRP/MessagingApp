@@ -5,8 +5,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
+import java.util.ArrayList;
 
+import Requests.GetAllUsersRequest;
+import Requests.GetAllUsersRequestResponse;
 import Requests.BroadcastMessageRequest;
 import Requests.BroadcastRequest;
 import Requests.LoginRequest;
@@ -15,6 +20,7 @@ import Requests.SuccessfulLoginRequest;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -33,11 +39,14 @@ import javafx.stage.Stage;
 
 public class Client {
 	//DATA MEMBERS
+		
 		private Socket socket;
 		private ObjectOutputStream os;
 		private ObjectInputStream is;
 		private boolean certification = false;
 		private String username;
+		private List<String> userList;
+		ObservableList<String> contactListContents;
 		ObservableValue<String> test = new SimpleStringProperty("bruh");
 		
 
@@ -71,7 +80,7 @@ public class Client {
 					    	
 					    	switch(incoming.getType()) {
 					    	case "SuccessfulLoginRequest":
-					    		System.out.println("package Received in switch case");
+					    		System.out.println("login package Received in switch case");
 					    		SuccessfulLoginHandler((SuccessfulLoginRequest)incoming);
 					    		System.out.println(certification);
 					    		
@@ -81,10 +90,16 @@ public class Client {
 					    		broadcastMessageReceived((BroadcastMessageRequest)incoming);
 					    		
 					    		break;
+					    	case "GetAllUsersRequestResponse":
+					    		GetAllUsersRequestResponse response = (GetAllUsersRequestResponse)incoming;
+					    		buildUserList(response.getUserList());
+					    		break;
+					    	}
+					    		
 					    		
 					    	
 					    	}
-					    }
+					    
 					} catch(IOException | ClassNotFoundException ex)
 					{
 					    //EOF found
@@ -171,6 +186,22 @@ public class Client {
 
 		}
 		
+		public void requestAllUsers(ObservableList<String> contactListContents) throws IOException {
+			this.contactListContents = contactListContents;
+			GetAllUsersRequest request = new GetAllUsersRequest();
+			this.os.writeObject(request);
+			this.os.reset();
+		}
+		
+		private void buildUserList(HashMap<String,String> userList) {
+			this.userList = new ArrayList<>();
+			userList.forEach((user,status) -> this.contactListContents.add(new String(user + " [" + status + "]")));
+
+		}
+		
+		public List<String> getUserList() {
+			return userList;
+		}
 		
 		
 

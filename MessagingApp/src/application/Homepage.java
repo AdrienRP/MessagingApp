@@ -212,8 +212,8 @@ public class Homepage extends Application {
         
      // Set action for + button
         plusButton.setOnAction(e -> {
-            
-
+        	
+        	
             Create create = new Create();
             create.showCreate(primaryStage, client);
           
