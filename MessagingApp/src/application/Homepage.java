@@ -14,9 +14,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 public class Homepage extends Application {
-	private ListView<File> inboxListView;
-    private TextArea conversationTextArea;
-    private File selectedFile;
+	 ListView<File> inboxListView;
+     TextArea conversationTextArea;
+     File selectedFile;
     
     
     

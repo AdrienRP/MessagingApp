@@ -1,11 +1,18 @@
+
+
 package application;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import Requests.BroadcastMessageRequest;
 import Requests.BroadcastRequest;
@@ -29,6 +36,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -42,7 +50,10 @@ public class Messenger extends Application{
 		private ObjectInputStream is;
 		private boolean certification = false;
 		private String username;
-		Stage mainStage;
+		Stage mainStage = new Stage();
+		Stage arg0;
+		File selectedFile;
+		
 	
 //INIT
 	public void init() throws UnknownHostException, IOException {
@@ -59,7 +70,8 @@ public class Messenger extends Application{
 	@Override
 	public void start(Stage arg0) throws Exception {
 		// TODO Auto-generated method stub
-		mainStage = loginScene();
+		this.arg0=arg0;
+		mainStage.setScene(loginScene());
 		mainStage.show();
 	}
 //STOP
@@ -116,6 +128,16 @@ public class Messenger extends Application{
 		return this.username;
 	}
 	
+	public void getStatus() throws IOException {
+		Request msg = new Request("GetStatus");
+		
+		this.os.writeObject(msg);
+		this.os.reset();
+		System.out.println("GetStatus: object sent");
+		
+	}
+	
+
 	public void testMessage(String hello) throws IOException, ClassNotFoundException {
 
 		Request msg = new Request( hello);
@@ -125,6 +147,9 @@ public class Messenger extends Application{
 		System.out.println("test: object sent");
 		
 	}
+	
+	
+	
 	
 	public void login(String username, String password) throws IOException, Exception {
 		// create LoginRequest object
@@ -143,18 +168,25 @@ public class Messenger extends Application{
 		if(!request.getResult()) {
 			this.certification = false;
 			System.out.println(request.getMessage());
-			mainStage= homePage();
-			mainStage.show();
-			 
-			 
+
 			
 		}else {
 			this.certification=true;
 			System.out.println(request.getMessage());
+			mainStage.hide();
+			mainStage = homePage();
+			mainStage.show();
+			
+	
+			
+	
 		}
 		
 		
 	}
+
+	
+	
 	
 	public void broadcastMessage(String message) throws IOException {
 		BroadcastRequest broadcast = new BroadcastRequest(message);
@@ -181,14 +213,10 @@ public class Messenger extends Application{
 		
 	}
 //SCENE BUILDERS
-	public Stage loginScene() {
-		
-		Stage loginStage = new Stage();
+	public Scene loginScene() {
 		
 		double scaleFactor = 1.8;
-    	
-    	loginStage.setTitle("Messenger Application");
-
+    
         // Create a GridPane layout
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
@@ -239,6 +267,16 @@ public class Messenger extends Application{
             String password = pwBox.getText();
             try {
 				login(username, password);
+				if(this.certification==true) {
+					mainStage.hide();
+					mainStage = homePage();
+					mainStage.show();
+					
+				}
+				else {
+					userTextField.clear();
+					pwBox.clear();
+				}
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -253,6 +291,7 @@ public class Messenger extends Application{
             
 
           
+          
         });
    
         
@@ -260,22 +299,20 @@ public class Messenger extends Application{
 
         // Create a scene and set it to the stage
         Scene scene = new Scene(grid, 640 * scaleFactor, 480 * scaleFactor);
-        loginStage.setScene(scene);
-        return loginStage;
+        
+        return scene;
         
 		
 	}
 
 		
-
 	public Stage homePage() {
 		ListView<File> inboxListView;
 	    TextArea conversationTextArea;
-	    File selectedFile;
+	    
 	    
 		double scaleFactor = 1.8;
-    	Stage homeStage = new Stage();
-    	homeStage.setTitle("Home");
+
 
         // Create the plus button
         Button plusButton = new Button("+");
@@ -312,6 +349,67 @@ public class Messenger extends Application{
         inboxListView = new ListView<>();
         inboxListView.setPrefWidth(150 * scaleFactor); // set preferred width
         inboxListView.setPrefHeight(400 * scaleFactor);
+        
+        
+        inboxListView.setOnMouseClicked(event -> {
+            selectedFile = inboxListView.getSelectionModel().getSelectedItem();
+            if (selectedFile != null) {
+                try {
+                    // Read the contents of the text file using FileReader and BufferedReader
+                    FileReader fileReader = new FileReader(selectedFile);
+                    BufferedReader bufferedReader = new BufferedReader(fileReader);
+                    StringBuilder conversationText = new StringBuilder();
+                    String line;
+                    while ((line = bufferedReader.readLine()) != null) {
+                        conversationText.append(line).append("\n");
+                    }
+                    bufferedReader.close();
+                    fileReader.close();
+
+                    // Set the conversation TextArea text to the contents of the text file
+                    conversationTextArea.setText(conversationText.toString());
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+                //Change conversation name based on which conversation is clicked in the inbox
+                selectedFile = inboxListView.getSelectionModel().getSelectedItem();
+                if (selectedFile != null) {
+                    String conversationTitleText = selectedFile.getName();
+                    conversationTitle.setText(conversationTitleText);
+                    try {
+                        // Read the contents of the text file using FileReader and BufferedReader
+                        FileReader fileReader = new FileReader(selectedFile);
+                        BufferedReader bufferedReader = new BufferedReader(fileReader);
+                        StringBuilder conversationText = new StringBuilder();
+                        String line;
+                        while ((line = bufferedReader.readLine()) != null) {
+                            conversationText.append(line).append("\n");
+                        }
+                        bufferedReader.close();
+                        fileReader.close();
+
+                        // Set the conversation TextArea text to the contents of the text file
+                        conversationTextArea.setText(conversationText.toString());
+
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        // Add the files to the inbox
+        File[] files = new File("src").listFiles();
+        if (files != null) {
+            // Sort the files based on last modified time (most recent first)
+            Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
+            for (File file : files) {
+                if (file.isFile() && file.getName().endsWith(".txt")) {
+                    inboxListView.getItems().add(file);
+                }
+            }
+        }
         
         // Create the text box
         TextField textBox = new TextField();
@@ -351,12 +449,36 @@ public class Messenger extends Application{
         layout.setLeft(vbox2);
         layout.setBottom(bottomBar);
         
+        // Put the txt file in the conversation window
+        selectedFile = inboxListView.getSelectionModel().getSelectedItem();
+       
+        
+        //Send message
+        sendButton.setOnAction(event -> {
+            String message = usernameLabel.getText() + ": " + textBox.getText() + "\n";
+            conversationTextArea.appendText(message);
+            textBox.clear();
+
+            try {
+                // Open the convo.txt file in append mode and write the message to it
+            	FileWriter fileWriter = new FileWriter(selectedFile, true);
+                fileWriter.write(message);
+                fileWriter.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            
+        });
+        
         // Create the scene
         Scene scene = new Scene(layout, 640 * scaleFactor, 480 * scaleFactor);
+        
+        Stage stage = new Stage();
+        stage.setScene(scene);
 
         // Set the scene
-        homeStage.setScene(scene);
-        return homeStage;
+        
+        return stage;
         
         
         
