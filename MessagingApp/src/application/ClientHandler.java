@@ -77,7 +77,7 @@ public class ClientHandler implements Runnable {
 		System.out.println("attempting login");
 		
 		//check if user exists
-		if(Server.lc.get(loginRequest.getUsername()) == null){
+		if(Server.loginCredentials.get(loginRequest.getUsername()) == null){
 			//if user does not exist, return false object
 			System.out.println("attempting login invalid user");
 			out.writeObject(new SuccessfulLoginRequest(loginRequest.getUsername(), false,"invalid username"));
@@ -85,7 +85,7 @@ public class ClientHandler implements Runnable {
 			
 			
 			//usermatch found in hashmap, check if password matches
-		} else if(Server.lc.get(loginRequest.getUsername()).contentEquals(loginRequest.getPassword())) {
+		} else if(Server.loginCredentials.get(loginRequest.getUsername()).contentEquals(loginRequest.getPassword())) {
 			//if password match, return true
 			System.out.println("attempting login success");
 			out.writeObject(new SuccessfulLoginRequest(loginRequest.getUsername(), true,"login successful"));

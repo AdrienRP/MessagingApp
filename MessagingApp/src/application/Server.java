@@ -1,10 +1,14 @@
 package application;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
+import java.io.File;
+import java.io.FileReader;
 
 public class Server {
 	//dedclare port number
@@ -12,7 +16,7 @@ public class Server {
 		
 		public ServerSocket ss;
 		
-		public static HashMap<String,String> lc = new HashMap<String, String>();
+		public static HashMap<String,String> loginCredentials = new HashMap<String, String>();
 
 		
 		
@@ -22,15 +26,66 @@ public class Server {
 			// running server
 		}
 		
-		public void loadLogin() {
-			lc.put("terry", "pass");
-			lc.put("a", "1");
-			lc.put("b", "2");
-			lc.put("c", "3");
-			lc.put("d", "4");
+		public void loadLogin() {		
+			Map<String, String> mapFromFile = HashMapFromTextFile();
+			for (Map.Entry<String, String> entry :
+	             mapFromFile.entrySet()) {
+	            loginCredentials.put(entry.getKey(),entry.getValue());
+	        }
 		}
 		
-			
+		public static Map<String, String> HashMapFromTextFile()
+	    {
+	  
+	        Map<String, String> map
+	            = new HashMap<String, String>();
+	        BufferedReader br = null;
+	  
+	        try {
+	  
+	            // create file object
+	            File file = new File("MessagingApp/src/application/users.txt");
+	  
+	            // create BufferedReader object from the File
+	            br = new BufferedReader(new FileReader(file));
+	  
+	            String line = null;
+	  
+	            // read file line by line
+	            while ((line = br.readLine()) != null) {
+	  
+	                // split the line by :
+	                String[] parts = line.split(":");
+	  
+	                // first part is name, second is number
+	                String name = parts[0].trim();
+	                String pass = parts[1].trim();
+	  
+	                // put name, number in HashMap if they are
+	                // not empty
+	                if (!name.equals("") && !pass.equals(""))
+	                    map.put(name, pass);
+	            }
+	        }
+	        catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	        finally {
+	  
+	            // Always close the BufferedReader
+	            if (br != null) {
+	                try {
+	                    br.close();
+	                }
+	                catch (Exception e) {
+	                };
+	            }
+	        }
+	  
+	        return map;
+	    }
+	
+
 		public void startServer() throws IOException, ClassNotFoundException {
 			System.out.println("Server Status: Running...");
 			

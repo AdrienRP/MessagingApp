@@ -59,7 +59,7 @@ public class Homepage extends Application {
         conversationTextArea = new TextArea();
         conversationTextArea.setPrefWidth(420 * scaleFactor);
         conversationTextArea.setPrefHeight(400 * scaleFactor);
-
+        conversationTextArea.textProperty().bind(client.test);
 
         // Create the log out button
         Button logOutButton = new Button("Log Out");
@@ -220,7 +220,7 @@ public class Homepage extends Application {
         });
         
         
-          
+        
 
         // Create the scene
         Scene scene = new Scene(layout, 640 * scaleFactor, 480 * scaleFactor);

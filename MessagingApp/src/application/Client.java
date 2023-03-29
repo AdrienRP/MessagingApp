@@ -12,6 +12,9 @@ import Requests.BroadcastRequest;
 import Requests.LoginRequest;
 import Requests.Request;
 import Requests.SuccessfulLoginRequest;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -35,6 +38,7 @@ public class Client {
 		private ObjectInputStream is;
 		private boolean certification = false;
 		private String username;
+		ObservableValue<String> test = new SimpleStringProperty("bruh");
 		
 
 	//CONSTRUCTOR
