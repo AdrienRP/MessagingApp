@@ -1,16 +1,22 @@
 package application;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class Conversation {
+public class Conversation implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int conversation_ID;
 	private ArrayList<String> members;
 	private String conversationType;
 	private ArrayList<Message> messages;
 	private String groupName;
-	public static ArrayList<Conversation> convoList = new ArrayList<>();
 	private boolean unique;
+	public static ArrayList<Conversation> convoList = new ArrayList<>();
+	
 	
 	
 

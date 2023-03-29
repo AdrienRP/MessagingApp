@@ -13,9 +13,7 @@ import java.util.Scanner;
 public class Server {
 	//dedclare port number
 		public static final int PORT = 3191;
-		
 		public ServerSocket ss;
-		
 		public static HashMap<String,String> lc = new HashMap<String, String>();
 		
 

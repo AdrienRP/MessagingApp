@@ -18,6 +18,8 @@ public class ClientHandler implements Runnable {
 	private Socket client;
 	private ObjectOutputStream out;
 	private ObjectInputStream in;
+	private ObjectInputStream readFile;
+	private ObjectOutputStream writeFile;
 	public static ArrayList<ClientHandler> clientList = new ArrayList<>();
 	public String username;
 	private String status;
@@ -28,8 +30,10 @@ public class ClientHandler implements Runnable {
 	
 	public ClientHandler(Socket clientSocket) throws IOException {
 		this.client = clientSocket;
-		in = new ObjectInputStream(client.getInputStream());
-		out = new ObjectOutputStream(client.getOutputStream());
+		this.in = new ObjectInputStream(client.getInputStream());
+		this.out = new ObjectOutputStream(client.getOutputStream());
+		
+		//this.readFile = new;
 		
 		clientList.add(this);
 		//initiailize status to online once connected 

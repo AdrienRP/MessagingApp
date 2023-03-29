@@ -1,11 +1,16 @@
 package application;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
 public class test {
-	public static void main(String[]args) {
+	public static void main(String[]args) throws FileNotFoundException, IOException {
 		ArrayList<String> namesA = new ArrayList<>();
 		namesA.add("b");
 		namesA.add("a");
@@ -47,6 +52,13 @@ public class test {
 		else {
 			System.out.println("not smae");
 		}
+		
+		File file = new File("1.txt");
+		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
+		oos.writeObject(convoA);
+		oos.close();
+		System.out.println("new obejct file");
+		
 	}
 
 }
