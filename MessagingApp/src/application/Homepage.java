@@ -43,12 +43,20 @@ public class Homepage extends Application {
         Button plusButton = new Button("+");
 
         // Create the username label
-        Label usernameLabel = new Label("Randy");
+        Label usernameLabel = new Label(client.getUsername());
 
         //Create the drop down list
         ComboBox<String> onlineStatusDropdown = new ComboBox<>();
         onlineStatusDropdown.getItems().addAll("Online", "Away", "Busy");
         onlineStatusDropdown.setValue("Online");
+        
+        onlineStatusDropdown.setOnAction(event -> {
+        	try {
+				client.sendStatus(onlineStatusDropdown.getValue());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+        });
         
         //Create conversation title
         Label conversationTitle = new Label("Conversation:");

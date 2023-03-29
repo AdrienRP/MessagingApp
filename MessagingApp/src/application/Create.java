@@ -48,13 +48,20 @@ public class Create extends Application {
         Button homeButton = new Button("Home");
 
         // Create the username label
-        Label usernameLabel = new Label("Randy");
+        Label usernameLabel = new Label(client.getUsername());
 
         //Create the drop down list
         ComboBox<String> onlineStatusDropdown = new ComboBox<>();
         onlineStatusDropdown.getItems().addAll("Online", "Away", "Busy");
         onlineStatusDropdown.setValue("Online");
         
+        onlineStatusDropdown.setOnAction(event -> {
+        	try {
+				client.sendStatus(onlineStatusDropdown.getValue());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+        });
 
         // Create the log out button
         Button logOutButton = new Button("Log Out");
@@ -101,16 +108,14 @@ public class Create extends Application {
        
         
         // Create the contactList
-        ObservableList<String> contactListContents = FXCollections.observableArrayList();
-        ListView<String> contactList = new ListView(contactListContents);
+        ListView<String> contactList = new ListView(client.getContactListContents());
         contactList.setPrefWidth(150 * scaleFactor); // set preferred width
         contactList.setPrefHeight(400 * scaleFactor);
         
 
             
-        // Add the usernames to the contactList
-        client.requestAllUsers(contactListContents);
-        //contactList.getItems().addAll(client.getUserList());
+        // request a refresh of the list from the server
+        client.requestAllUsers();
 
         
         //Create vbox for contact label and contacts

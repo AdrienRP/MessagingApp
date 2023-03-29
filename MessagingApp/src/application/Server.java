@@ -4,11 +4,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileReader;
+import java.io.ObjectOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.concurrent.*;
 
 public class Server {
 	//dedclare port number
@@ -17,12 +21,12 @@ public class Server {
 		public ServerSocket ss;
 		
 		public static HashMap<String,String> loginCredentials = new HashMap<String, String>();//username:password
-		public static HashMap<String,String> userList = new HashMap<String, String>();//username:activity status
+		public static ConcurrentHashMap<String,String> userList = new ConcurrentHashMap<String, String>();//username:activity status
+		public static ArrayList<ClientHandler> clientList = new ArrayList<>();
 
 		
 		
 		public Server() throws IOException, ClassNotFoundException {
-			
 			this.ss = new ServerSocket(PORT);
 			// running server
 		}
@@ -36,7 +40,7 @@ public class Server {
 	        }
 		}
 		
-		public static Map<String, String> HashMapFromTextFile()
+		private static Map<String, String> HashMapFromTextFile()
 	    {
 	  
 	        Map<String, String> map
@@ -90,21 +94,25 @@ public class Server {
 
 		public void startServer() throws IOException, ClassNotFoundException {
 			System.out.println("Server Status: Running...");
-			
-			
-			
-			
-			
+
 			while(!ss.isClosed()) {
 				
 				Socket socket = this.ss.accept(); // blocking function till client connects
+				
+				
+				
+
+				
 				
 				//once client connects to server, create client handler for specific instance
 				ClientHandler clientHandler = new ClientHandler(socket);
 				System.out.println("handler created");
 				
+				Server.clientList.add(clientHandler);
+				
 				Thread thread = new Thread(clientHandler);
 				thread.start();
+				
 				
 			}
 			

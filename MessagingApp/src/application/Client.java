@@ -7,9 +7,13 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 
+import Requests.SetStatusRequest;
 import Requests.GetAllUsersRequest;
 import Requests.GetAllUsersRequestResponse;
 import Requests.BroadcastMessageRequest;
@@ -17,9 +21,11 @@ import Requests.BroadcastRequest;
 import Requests.LoginRequest;
 import Requests.Request;
 import Requests.SuccessfulLoginRequest;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -45,9 +51,9 @@ public class Client {
 		private ObjectInputStream is;
 		private boolean certification = false;
 		private String username;
-		private List<String> userList;
-		ObservableList<String> contactListContents;
 		ObservableValue<String> test = new SimpleStringProperty("bruh");
+		private ObservableValue<String> status = new SimpleStringProperty("online");
+		private ObservableList<String> contactListContents; 
 		
 
 	//CONSTRUCTOR
@@ -56,12 +62,10 @@ public class Client {
 			this.socket = new Socket("127.0.0.1", Server.PORT);
 
 			//create input/ output streams
-			
 			this.os = new ObjectOutputStream(socket.getOutputStream());
+			this.is = new ObjectInputStream(socket.getInputStream());
 			
-			this.is = new ObjectInputStream(socket.getInputStream()); 
-
-
+			this.contactListContents = FXCollections.observableArrayList();
 		}
 
 	//METHODS	
@@ -90,9 +94,8 @@ public class Client {
 					    		broadcastMessageReceived((BroadcastMessageRequest)incoming);
 					    		
 					    		break;
-					    	case "GetAllUsersRequestResponse":
-					    		GetAllUsersRequestResponse response = (GetAllUsersRequestResponse)incoming;
-					    		buildUserList(response.getUserList());
+					    	case "GetAllUsersRequestResponse":				
+					    		buildUserList(((GetAllUsersRequestResponse)incoming).getUserList());
 					    		break;
 					    	}
 					    		
@@ -125,7 +128,7 @@ public class Client {
 			Request msg = new Request( hello);
 			
 			this.os.writeObject(msg);
-			this.os.reset();
+			this.os.flush();
 			System.out.println("test: object sent");
 			
 		}
@@ -137,7 +140,7 @@ public class Client {
 			
 			//send request to server
 			this.os.writeObject(loginRequest);
-			this.os.reset();
+			this.os.flush();
 			//give client time to update certification
 			Thread.sleep(1000);
 			
@@ -158,7 +161,7 @@ public class Client {
 		public void broadcastMessage(String message) throws IOException {
 			BroadcastRequest broadcast = new BroadcastRequest(message);
 			this.os.writeObject(broadcast);
-			this.os.reset();
+			this.os.flush();
 			System.out.println("broadcast message sent");
 		}
 		
@@ -176,7 +179,7 @@ public class Client {
 		public void getAllClients() throws IOException{
 			Request request = new Request("Client");
 			this.os.writeObject(request);
-			this.os.reset();
+			this.os.flush();
 			
 		}
 		
@@ -186,21 +189,35 @@ public class Client {
 
 		}
 		
-		public void requestAllUsers(ObservableList<String> contactListContents) throws IOException {
-			this.contactListContents = contactListContents;
+		//send rq to server asking for list of users & statuses
+		public void requestAllUsers() throws IOException {
 			GetAllUsersRequest request = new GetAllUsersRequest();
 			this.os.writeObject(request);
-			this.os.reset();
+			this.os.flush();
 		}
 		
-		private void buildUserList(HashMap<String,String> userList) {
-			this.userList = new ArrayList<>();
-			userList.forEach((user,status) -> this.contactListContents.add(new String(user + " [" + status + "]")));
+		//take rq from server holding list of users & statuses and update the observable list bound to the listview
+		private void buildUserList(ConcurrentHashMap<String,String> userList) {			
+			Platform.runLater(() -> {
+				contactListContents.removeAll(contactListContents);
+				userList.forEach((user,status) -> contactListContents.add(new String(user + " [" + status + "]")));
+			});
+				
+		}
 
+		public void sendStatus(String value) throws IOException {
+			SetStatusRequest request = new SetStatusRequest(value);
+			this.os.writeObject(request);
+			this.os.flush();
+			
 		}
-		
-		public List<String> getUserList() {
-			return userList;
+
+		public ObservableList<String> getContactListContents() {
+			return contactListContents;
+		}
+
+		public ObservableValue<String> getStatus() {
+			return status;
 		}
 		
 		

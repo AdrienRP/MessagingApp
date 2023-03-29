@@ -1,17 +1,18 @@
 package Requests;
 
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GetAllUsersRequestResponse extends Request {
 	private static final long serialVersionUID = 1L;
-	public HashMap<String,String> userList;
+	private ConcurrentHashMap<String,String> userList;
 	
-	public GetAllUsersRequestResponse(HashMap<String,String> userList) {
+	public GetAllUsersRequestResponse(ConcurrentHashMap<String, String> userList) {
 		super("GetAllUsersRequestResponse");
-		this.userList = userList;
+		this.userList = new ConcurrentHashMap<>(userList);
 	}
 	
-	public HashMap<String,String> getUserList() {
+	public ConcurrentHashMap<String,String> getUserList() {
 		return userList;
 	}
 }
