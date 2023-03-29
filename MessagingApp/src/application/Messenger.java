@@ -217,6 +217,9 @@ public class Messenger extends Application{
 		System.out.println("test: object sent");
 		
 	}
+	public void newConvoRequest(String[] members) {
+		
+	}
 	
 	public void sendMessage(String user, String message) throws IOException {
 		MessageRequest messageRequest = new MessageRequest(this.username, user,message);
