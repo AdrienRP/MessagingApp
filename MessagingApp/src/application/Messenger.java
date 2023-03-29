@@ -19,6 +19,8 @@ import Requests.BroadcastRequest;
 import Requests.LoginRequest;
 import Requests.Request;
 import Requests.SuccessfulLoginRequest;
+import Requests.MessageRequest;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
@@ -44,8 +46,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-
-import Requests.BroadcastRequest;
 
 public class Messenger extends Application{
 //DATA MEMBERS
@@ -136,47 +136,13 @@ public class Messenger extends Application{
 		this.socket.close();
 	}
 
-	//USER ACTIONS	
+//USER ACTIONS	
+	//user data
 	public String getUsername() {
 		return this.username;
 	}
 	
-	public void setStatus(String status) throws IOException {
-		Request request = new Request("SetStatusRequest", status);
-		this.os.writeObject(request);
-		this.os.reset();
-	}
-	public void getStatus() throws IOException {
-		Request msg = new Request("GetStatusRequest");
-		
-		this.os.writeObject(msg);
-		this.os.reset();
-		System.out.println("GetStatus: object sent");
-		
-	}
-	public void getStatusReceived(Request incoming){
-		Platform.runLater(()->{
-			this.status = incoming.getMessage();
-			System.out.println("Status: " +this.status);
-			
-		});
-		
-	}
-	
-
-	public void testMessage(String hello) throws IOException, ClassNotFoundException {
-
-		Request msg = new Request( hello);
-		
-		this.os.writeObject(msg);
-		this.os.reset();
-		System.out.println("test: object sent");
-		
-	}
-	
-	
-	
-	
+	//login
 	public void login(String username, String password) throws IOException, Exception {
 	    // create LoginRequest object
 	    LoginRequest loginRequest = new LoginRequest(username, password);
@@ -213,17 +179,52 @@ public class Messenger extends Application{
 		    } else {
 		        this.certification = true;
 		        System.out.println(request.getMessage());
-			
-	
-			
-	
+
 		}
-		
-		
 	}
 
+	//status
+	public void setStatus(String status) throws IOException {
+		Request request = new Request("SetStatusRequest", status);
+		this.os.writeObject(request);
+		this.os.reset();
+	}
+	public void getStatus() throws IOException {
+		Request msg = new Request("GetStatusRequest");
+		
+		this.os.writeObject(msg);
+		this.os.reset();
+		System.out.println("GetStatus: object sent");
+		
+	}
+	public void getStatusReceived(Request incoming){
+		Platform.runLater(()->{
+			this.status = incoming.getMessage();
+			System.out.println("Status: " +this.status);
+			
+		});
+		
+	}
 	
+	//send messages
 	
+	public void testMessage(String hello) throws IOException, ClassNotFoundException {
+
+		Request msg = new Request( hello);
+		
+		this.os.writeObject(msg);
+		this.os.reset();
+		System.out.println("test: object sent");
+		
+	}
+	
+	public void sendMessage(String user, String message) throws IOException {
+		MessageRequest messageRequest = new MessageRequest(this.username, user,message);
+		this.os.writeObject(messageRequest);
+		this.os.reset();
+		System.out.println("MessageRequest Sent");
+	}
+
 	
 	public void broadcastMessage(String message) throws IOException {
 		BroadcastRequest broadcast = new BroadcastRequest(message);

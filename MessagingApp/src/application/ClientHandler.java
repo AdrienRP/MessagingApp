@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import Requests.BroadcastMessageRequest;
 import Requests.BroadcastRequest;
 import Requests.LoginRequest;
+import Requests.MessageRequest;
 import Requests.Request;
 import Requests.SuccessfulLoginRequest;
 
@@ -65,7 +66,9 @@ public class ClientHandler implements Runnable {
 		    	case "SetStatusRequest":
 		    		setStatusRequest(request);
 		    		break;
-		    		
+		    	case "MessageRequest":
+		    		MessageRequest messageRequest = (MessageRequest) request;
+		    		sendMessageRequest(messageRequest);
 		    	}
 		    	
 		    		
@@ -148,5 +151,9 @@ public class ClientHandler implements Runnable {
 		
 	}
 	
+	public void sendMessageRequest(MessageRequest request) {
+		//handle messageRequest
+		
+	}
 
 }
