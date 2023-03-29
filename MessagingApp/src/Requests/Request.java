@@ -9,15 +9,24 @@ public class Request implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 	private String type;
+	private String message;
 	
 	//constructor
 	public Request(String type) {
 		this.type = type;
+		this.message=null;
+	}
+	public Request(String type, String message) {
+		this.type = type;
+		this.message = message;
 	}
 
 	public String getType() {
 		return this.type;
 	}
-
+	
+	public String getMessage() {
+		return this.message;
+	}
 	
 }

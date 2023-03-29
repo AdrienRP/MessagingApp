@@ -18,6 +18,7 @@ public class ClientHandler implements Runnable {
 	private ObjectInputStream in;
 	public static ArrayList<ClientHandler> clientList = new ArrayList<>();
 	public String username;
+	private String status;
 
 	
 	
@@ -29,6 +30,8 @@ public class ClientHandler implements Runnable {
 		out = new ObjectOutputStream(client.getOutputStream());
 		
 		clientList.add(this);
+		//initiailize status to online once connected 
+		this.status="Online";
 		System.out.println("New Client Connected created:");
 		
 	}
@@ -55,8 +58,17 @@ public class ClientHandler implements Runnable {
 		    		sendBroadcast(broadcastRequest);
 		    	
 		    		break;
+		    	case "GetStatusRequest":
+		    		getStatusRequest();
+		    		break;
+		    		
+		    	case "SetStatusRequest":
+		    		setStatusRequest(request);
+		    		break;
 		    		
 		    	}
+		    	
+		    		
 
 		    	
 		    }
@@ -72,6 +84,22 @@ public class ClientHandler implements Runnable {
 		out.writeObject(response);
 		
 	}
+	
+	public void getStatusRequest() throws IOException {
+		Request response = new Request("GetStatus",this.status);
+		out.writeObject(response);
+		System.out.println("GetStatusRequest Sorted");
+		
+	}
+	public void setStatusRequest(Request request) throws IOException {
+		
+		this.status=request.getMessage();
+		Request response = new Request("GetStatus",this.status);
+		out.writeObject(response);
+		System.out.println("SetStatusRequest Sorted");
+		
+	}
+	
 	public void attemptLogin(LoginRequest loginRequest) throws Exception {
 
 		System.out.println("attempting login");

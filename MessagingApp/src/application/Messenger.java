@@ -60,6 +60,7 @@ public class Messenger extends Application{
 		TextArea conversationTextArea;
 		TextField userTextField;
 		PasswordField pwBox;
+		public String status;
 		
 	
 //INIT
@@ -82,7 +83,9 @@ public class Messenger extends Application{
 		mainStage.show();
 	}
 //STOP
-	public void stop() {
+	public void stop() throws IOException {
+		//close sockets
+		close();
 		System.out.println("closed");
 	}
 //METHODS	
@@ -111,7 +114,9 @@ public class Messenger extends Application{
 				    		broadcastMessageReceived((BroadcastMessageRequest)incoming);
 				    		
 				    		break;
-				    		
+				    	case "GetStatus":
+				    		System.out.println("status update: " + incoming.getMessage());
+				    		break;
 				    	
 				    	}
 				    }
@@ -130,17 +135,31 @@ public class Messenger extends Application{
 		this.os.close();
 		this.socket.close();
 	}
-	
+
+	//USER ACTIONS	
 	public String getUsername() {
 		return this.username;
 	}
 	
+	public void setStatus(String status) throws IOException {
+		Request request = new Request("SetStatusRequest", status);
+		this.os.writeObject(request);
+		this.os.reset();
+	}
 	public void getStatus() throws IOException {
-		Request msg = new Request("GetStatus");
+		Request msg = new Request("GetStatusRequest");
 		
 		this.os.writeObject(msg);
 		this.os.reset();
 		System.out.println("GetStatus: object sent");
+		
+	}
+	public void getStatusReceived(Request incoming){
+		Platform.runLater(()->{
+			this.status = incoming.getMessage();
+			System.out.println("Status: " +this.status);
+			
+		});
 		
 	}
 	
@@ -345,6 +364,16 @@ public class Messenger extends Application{
         ComboBox<String> onlineStatusDropdown = new ComboBox<>();
         onlineStatusDropdown.getItems().addAll("Online", "Away", "Busy");
         onlineStatusDropdown.setValue("Online");
+        
+ //set status
+        onlineStatusDropdown.setOnAction(e ->{
+        	try {
+				setStatus(onlineStatusDropdown.getValue());
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+        });
         
         //Create conversation title
         Label conversationTitle = new Label("Conversation:");
