@@ -48,7 +48,7 @@ public class Homepage extends Application {
         //Create the drop down list
         ComboBox<String> onlineStatusDropdown = new ComboBox<>();
         onlineStatusDropdown.getItems().addAll("Online", "Away", "Busy");
-        onlineStatusDropdown.setValue("Online");
+        onlineStatusDropdown.setValue(client.getStatus());
         
         onlineStatusDropdown.setOnAction(event -> {
         	try {

@@ -52,7 +52,7 @@ public class Client {
 		private boolean certification = false;
 		private String username;
 		ObservableValue<String> test = new SimpleStringProperty("bruh");
-		private ObservableValue<String> status = new SimpleStringProperty("online");
+		private String status = "online";
 		private ObservableList<String> contactListContents; 
 		
 
@@ -206,6 +206,7 @@ public class Client {
 		}
 
 		public void sendStatus(String value) throws IOException {
+			this.status = new String(value);
 			SetStatusRequest request = new SetStatusRequest(value);
 			this.os.writeObject(request);
 			this.os.flush();
@@ -216,7 +217,7 @@ public class Client {
 			return contactListContents;
 		}
 
-		public ObservableValue<String> getStatus() {
+		public String getStatus() {
 			return status;
 		}
 		
