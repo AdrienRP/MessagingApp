@@ -149,9 +149,9 @@ public class Messenger extends Application{
 				    		newConversationReceived(incoming);
 				    		break;
 				    		
-				    	//case "GetConversationsRequestResponse":
-				    		//buildInboxList(((GetConversationsRequestResponse) incoming).getConversations());
-				    		//break;
+				    	case "GetConversationsRequestResponse":
+				    		buildInboxList(((GetConversationsRequestResponse) incoming).getConversations());
+				    		break;
 				    		
 				    	case "NewMessage":
 				    		//new message incoming in conversation_ID "request.getmessage()"
@@ -196,7 +196,6 @@ public class Messenger extends Application{
 	        if (this.certification) {
 	            mainStage.hide();
 	            mainStage = homePage();
-	            buildInboxList(username);
 	            mainStage.show();
 	        } else {
 	            userTextField.clear();
@@ -458,7 +457,7 @@ public class Messenger extends Application{
 		//ListView<File> inboxListView;
 	    TextArea conversationTextArea;
 	    
-	    buildInboxList(username);
+	    
 	    
 		double scaleFactor = 1.4;
 
@@ -526,14 +525,7 @@ public class Messenger extends Application{
         inboxList.setPrefWidth(300 * scaleFactor);
         inboxList.setPrefHeight(400 * scaleFactor);
 
-        ObservableList<String> inboxItems = FXCollections.observableArrayList();
-        inboxList.setItems(inboxItems);
-
-        for (GroupConversation groupConversation : groupConversations) {
-            if (groupConversation.getMembers().contains(username)) {
-                inboxItems.add(groupConversation.getGroupName());
-            }
-        }
+       
         /*
         inboxListView.setOnMouseClicked(event -> {
             selectedFile = inboxListView.getSelectionModel().getSelectedItem();
