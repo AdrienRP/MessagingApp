@@ -2,10 +2,15 @@ package application;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -15,8 +20,13 @@ public class Server {
 		public static final int PORT = 3191;
 		public ServerSocket ss;
 		public static HashMap<String,String> lc = new HashMap<String, String>();
+
 		public static HashMap<String,String> userList = new HashMap<String, String>();
 		
+
+
+		public static ArrayList<Conversation> allConversations = new ArrayList<>();
+		public int convoNumber;
 
 		
 		
@@ -82,18 +92,51 @@ public class Server {
 	                };
 	            }
 	        }
-	  
+	        
 	        return map;
 	    }
 	
 
-		public void loadConversations() {
+		public void loadConversations() throws IOException, ClassNotFoundException {
 			//create conversation for every text file 1.txt, 2.txt...
+			File file = new File("MessagingApp/src/application/Server.txt");
+			
+			 // create BufferedReader object from the File
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String convonum = br.readLine();
+            br.close();
+            this.convoNumber=Integer.valueOf(convonum);
+            System.out.println("Conversations on server ="+ convonum);
+            
+            for(int i =0;i < this.convoNumber; i++) {
+            	String location = "MessagingApp/src/application/"+i+".txt";
+            	file = new File(location);
+            	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+            	Conversation temp = (Conversation)ois.readObject();
+            	
+            	Server.allConversations.add(temp);
+            	System.out.println(i);
+            }
+         
 			
 		}
-		public void loadUserData() {
-			//create user object
+		public void saveConversations() throws IOException {
+			
+         for(Conversation convo: Conversation.convoList) {
+        	String location = "MessagingApp/src/application/"+Integer.toString(convo.getConversation_ID())+".txt";
+        	File file = new File(location);
+     		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
+     		oos.writeObject(convo);
+     		oos.close();
+     		System.out.println("Output convoID: "+Integer.toString(convo.getConversation_ID()));
+        	 
+            }
+			
 		}
+		public void updateConvoCount() {
+			this.convoNumber=Conversation.convoList.size();
+		}
+
 			
 		public void startServer() throws IOException, ClassNotFoundException {
 			System.out.println("Server Status: Running...");
@@ -122,6 +165,7 @@ public class Server {
 			Server server = new Server();
 			System.out.println("server Status: Launching...");
 			server.loadLogin();
+			server.loadConversations();
 			server.startServer();
 			
 			System.out.println("enter command: ");

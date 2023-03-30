@@ -31,6 +31,7 @@ public class test {
 		Conversation convoA = new Conversation(namesA, "funTeam");
 		
 		Conversation convoB = new Conversation(namesB, "lmao");
+		Conversation convoc = new Conversation(namesC, "lmao");
 		
 		for (Conversation convo: Conversation.convoList) {
 			ArrayList<String> temp = convo.getMembers();
@@ -53,11 +54,15 @@ public class test {
 			System.out.println("not smae");
 		}
 		
-		File file = new File("1.txt");
-		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
-		oos.writeObject(convoA);
-		oos.close();
-		System.out.println("new obejct file");
+        for(Conversation convo: Conversation.convoList) {
+       	String location = "MessagingApp/src/application/"+Integer.toString(convo.getConversation_ID())+".txt";
+       	File file = new File(location);
+    		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
+    		oos.writeObject(convo);
+    		oos.close();
+    		System.out.println("Output convoID: "+Integer.toString(convo.getConversation_ID()));
+       	 
+           }
 		
 	}
 
