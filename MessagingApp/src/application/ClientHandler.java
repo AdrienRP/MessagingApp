@@ -17,6 +17,8 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import Requests.GetConversationsRequestResponse;
+import Requests.GetConversationsRequest;
 import Requests.SetStatusRequest;
 import Requests.GetAllUsersRequestResponse;
 import Requests.GetAllUsersRequest;
@@ -70,8 +72,12 @@ public class ClientHandler implements Runnable {
 		Thread handleClient = new Thread(() -> {
 			try {
 				while(true) {
-					Request request = (Request) in.readObject();
-					processRequest(request);
+					try {
+						Request request = (Request) in.readObject();
+						processRequest(request);
+					} catch (EOFException e) {
+						Thread.sleep(100);
+					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -140,11 +146,27 @@ public class ClientHandler implements Runnable {
     		GetAllUsersRequestResponse rq = new GetAllUsersRequestResponse(Server.userList);
     		out.writeObject(rq);
     		out.flush();
-    		break;	
-
+    		break;
+    		
+    	case "GetConversationsRequest":
+    		GetConversationsRequestResponse rq1 = new GetConversationsRequestResponse(getUsersConversations());
+    		out.writeObject(rq1);
+    		out.flush();
+    		break;
     	}	
 	}
 	
+	private ArrayList<Conversation> getUsersConversations() {
+		ArrayList<Conversation> list = new ArrayList<>();
+		for(Conversation conv: Server.allConversations) {
+			if(conv.getMembers().contains(username)) {
+				list.add(conv);
+			}
+		}
+		return list;
+	}
+
+
 	public void sendResponse() throws IOException {
 		Request response = new Request("Youre request has been sorted");
 		out.writeObject(response);

@@ -18,6 +18,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import Requests.GetConversationsRequestResponse;
+import Requests.GetConversationsRequest;
 import Requests.GetAllUsersRequestResponse;
 import Requests.GetAllUsersRequest;
 import Requests.BroadcastMessageRequest;
@@ -72,6 +74,9 @@ public class Messenger extends Application{
 		public String status = "online";
 		public ArrayList<Integer> conversations;
 		private ObservableList<String> contactListContents = FXCollections.observableArrayList();
+		private ObservableList<String> selectedContactListContents = FXCollections.observableArrayList();
+		private ObservableList<String> inboxListContents = FXCollections.observableArrayList();
+		
 		
 	
 //INIT
@@ -137,9 +142,13 @@ public class Messenger extends Application{
 				    		newConversationReceived(incoming);
 				    		break;
 				    		
+				    	case "GetConversationsRequestResponse":
+				    		buildInboxList(((GetConversationsRequestResponse) incoming).getConversations());
+				    		break;
+				    		
 				    	case "NewMessage":
 				    		//new message incoming in conversation_ID "request.getmessage()"
-				    		
+				    		break;
 				    	}
 				    }
 				} catch(IOException | ClassNotFoundException ex)
@@ -194,6 +203,17 @@ public class Messenger extends Application{
 			userList.forEach((user,status) -> contactListContents.add(new String(user + " [" + status + "]")));
 		});
 	}
+	
+	private void buildInboxList(ArrayList<Conversation> conversations) {
+		//build inboxListContents<STRING> from conversations
+		Platform.runLater(() -> {
+			inboxListContents.removeAll(inboxListContents);
+			for(Conversation convo: conversations) {
+				inboxListContents.add(new String(convo.getGroupName()));
+			}
+		});
+		
+	}
 	  
 	public void SuccessfulLoginHandler(SuccessfulLoginRequest request) {
 		
@@ -238,6 +258,19 @@ public class Messenger extends Application{
 		
 	}
 	
+	
+	private void requestAllUsers() throws IOException {
+		GetAllUsersRequest request = new GetAllUsersRequest();
+		os.writeObject(request);
+		os.flush();
+		
+	}
+	
+	private void getConversations() throws IOException {
+		GetConversationsRequest rq = new GetConversationsRequest();
+		os.writeObject(rq);
+		os.flush();
+	}
 	//send messages
 	
 	public void testMessage(String hello) throws IOException, ClassNotFoundException {
@@ -397,7 +430,7 @@ public class Messenger extends Application{
 
 		
 	public Stage homePage() {
-		ListView<File> inboxListView;
+		//ListView<File> inboxListView;
 	    TextArea conversationTextArea;
 	    
 	    
@@ -446,80 +479,86 @@ public class Messenger extends Application{
        
         
         // Create the inbox
-        inboxListView = new ListView<>();
+        ListView<String> inboxListView = new ListView<>(inboxListContents);
+        try {
+			getConversations();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
         inboxListView.setPrefWidth(150 * scaleFactor); // set preferred width
         inboxListView.setPrefHeight(400 * scaleFactor);
         
         
-        inboxListView.setOnMouseClicked(event -> {
-            selectedFile = inboxListView.getSelectionModel().getSelectedItem();
-            if (selectedFile != null) {
-                try {
-                	/*
-                    // Read the contents of the text file using FileReader and BufferedReader
-                	//for(Conversation convo : Conversation.convoList){
-                	//	covo.getMembers.contains(this.username){
-                			convo.getmessages{
-                				print convo.getmessages.getSender
-                				print convo.getmessages.getmessage
-                	//		}
-                	//
-                	 * */
-                	
-                    FileReader fileReader = new FileReader(selectedFile);
-                    BufferedReader bufferedReader = new BufferedReader(fileReader);
-                    StringBuilder conversationText = new StringBuilder();
-                    String line;
-                    while ((line = bufferedReader.readLine()) != null) {
-                        conversationText.append(line).append("\n");
-                    }
-                    bufferedReader.close();
-                    fileReader.close();
-
-                    // Set the conversation TextArea text to the contents of the text file
-                    conversationTextArea.setText(conversationText.toString());
-
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-                //Change conversation name based on which conversation is clicked in the inbox
-                selectedFile = inboxListView.getSelectionModel().getSelectedItem();
-                if (selectedFile != null) {
-                    String conversationTitleText = selectedFile.getName();
-                    conversationTitle.setText(conversationTitleText);
-                    try {
-                        // Read the contents of the text file using FileReader and BufferedReader
-                        FileReader fileReader = new FileReader(selectedFile);
-                        BufferedReader bufferedReader = new BufferedReader(fileReader);
-                        StringBuilder conversationText = new StringBuilder();
-                        String line;
-                        while ((line = bufferedReader.readLine()) != null) {
-                            conversationText.append(line).append("\n");
-                        }
-                        bufferedReader.close();
-                        fileReader.close();
-
-                        // Set the conversation TextArea text to the contents of the text file
-                        conversationTextArea.setText(conversationText.toString());
-
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            }
-        });
+//        inboxListView.setOnMouseClicked(event -> {
+//            selectedFile = inboxListView.getSelectionModel().getSelectedItem();
+//            if (selectedFile != null) {
+//                try {
+//                	/*
+//                    // Read the contents of the text file using FileReader and BufferedReader
+//                	//for(Conversation convo : Conversation.convoList){
+//                	//	covo.getMembers.contains(this.username){
+//                			convo.getmessages{
+//                				print convo.getmessages.getSender
+//                				print convo.getmessages.getmessage
+//                	//		}
+//                	//
+//                	 * */
+//                	
+//                    FileReader fileReader = new FileReader(selectedFile);
+//                    BufferedReader bufferedReader = new BufferedReader(fileReader);
+//                    StringBuilder conversationText = new StringBuilder();
+//                    String line;
+//                    while ((line = bufferedReader.readLine()) != null) {
+//                        conversationText.append(line).append("\n");
+//                    }
+//                    bufferedReader.close();
+//                    fileReader.close();
+//
+//                    // Set the conversation TextArea text to the contents of the text file
+//                    conversationTextArea.setText(conversationText.toString());
+//
+//                } catch (IOException ex) {
+//                    ex.printStackTrace();
+//                }
+//                //Change conversation name based on which conversation is clicked in the inbox
+//                selectedFile = inboxListView.getSelectionModel().getSelectedItem();
+//                if (selectedFile != null) {
+//                    String conversationTitleText = selectedFile.getName();
+//                    conversationTitle.setText(conversationTitleText);
+//                    try {
+//                        // Read the contents of the text file using FileReader and BufferedReader
+//                        FileReader fileReader = new FileReader(selectedFile);
+//                        BufferedReader bufferedReader = new BufferedReader(fileReader);
+//                        StringBuilder conversationText = new StringBuilder();
+//                        String line;
+//                        while ((line = bufferedReader.readLine()) != null) {
+//                            conversationText.append(line).append("\n");
+//                        }
+//                        bufferedReader.close();
+//                        fileReader.close();
+//
+//                        // Set the conversation TextArea text to the contents of the text file
+//                        conversationTextArea.setText(conversationText.toString());
+//
+//                    } catch (IOException ex) {
+//                        ex.printStackTrace();
+//                    }
+//                }
+//            }
+//        });
 
         // Add the files to the inbox
-        File[] files = new File("src").listFiles();
-        if (files != null) {
-            // Sort the files based on last modified time (most recent first)
-            Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
-            for (File file : files) {
-                if (file.isFile() && file.getName().endsWith(".txt")) {
-                    inboxListView.getItems().add(file);
-                }
-            }
-        }
+//        File[] files = new File("MessagingApp/src").listFiles();
+//        if (files != null) {
+//            // Sort the files based on last modified time (most recent first)
+//            Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
+//            for (File file : files) {
+//                if (file.isFile() && file.getName().endsWith(".txt")) {
+//                    inboxListView.getItems().add(file);
+//                }
+//            }
+//        }
         
         // Create the text box
         TextField textBox = new TextField();
@@ -560,7 +599,7 @@ public class Messenger extends Application{
         layout.setBottom(bottomBar);
         
         // Put the txt file in the conversation window
-        selectedFile = inboxListView.getSelectionModel().getSelectedItem();
+        //selectedFile = inboxListView.getSelectionModel().getSelectedItem();
        
         
         //Send message
@@ -664,8 +703,9 @@ public class Messenger extends Application{
       
       
         //Create the conversationtext area
+        ListView<String> selectedContactList = new ListView<>(selectedContactListContents);
         conversationTextArea = new TextArea();
-        conversationTextArea.setPrefWidth(420 * scaleFactor);
+        selectedContactList.setPrefWidth(420 * scaleFactor);
         conversationTextArea.setPrefHeight(400 * scaleFactor);
 
       //Create Contacts label
@@ -800,12 +840,7 @@ public class Messenger extends Application{
 
 	
 	
-	private void requestAllUsers() throws IOException {
-		GetAllUsersRequest request = new GetAllUsersRequest();
-		os.writeObject(request);
-		os.flush();
-		
-	}
+	
 	public static void main(String[] args) {
 	        launch(args);
 	}
