@@ -725,6 +725,7 @@ public class Messenger extends Application{
 
         //Create label for users added
         usersAdded = new Label("Users Added:");
+        updateSelectedContacts(username, true);
 
         //Create the "create group" button
         Button createGroupButton = new Button("Create Group");
@@ -908,18 +909,25 @@ public class Messenger extends Application{
 
 	private void createGroup(String groupName, ObservableList<String> members) {
 	    String fileName = groupName + ".txt";
-	    File groupFile = new File("src/" + fileName);
+	    File conversationFile = new File("src/" + fileName);
+	    
 
 	    try {
-	        if (groupFile.createNewFile()) {
-	            FileWriter writer = new FileWriter(groupFile);
+	        if (conversationFile.createNewFile()) {
+	            FileWriter writer = new FileWriter(conversationFile);
+
+	            // Add the current user to the conversation file if they're not already included
+	            if (!members.contains(username)) {
+	                members.add(username);
+	            }
+
 	            for (String contact : members) {
 	                writer.write(contact + "\n");
 	            }
 	            writer.close();
 
 	            // Update the inbox list
-	            inboxListContents.add(groupName);
+	           // inboxListContents.add(groupName);
 	        } else {
 	            showAlert("Error", "A group with this name already exists.");
 	        }

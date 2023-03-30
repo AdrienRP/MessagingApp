@@ -1,4 +1,0 @@
-a [offline]
-b [offline]
-d [offline]
-terry [online]
