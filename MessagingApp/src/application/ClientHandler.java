@@ -1,11 +1,17 @@
 package application;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import Requests.SetStatusRequest;
+import Requests.GetAllUsersRequestResponse;
+import Requests.GetAllUsersRequest;
 import Requests.BroadcastMessageRequest;
 import Requests.BroadcastRequest;
 import Requests.LoginRequest;
@@ -20,6 +26,9 @@ public class ClientHandler implements Runnable {
 	private ObjectInputStream in;
 	private ObjectInputStream readFile;
 	private ObjectOutputStream writeFile;
+	private ByteArrayOutputStream bos;
+	private ObjectOutputStream outFromServer;
+	private ObjectInputStream inFromServer;
 	public static ArrayList<ClientHandler> clientList = new ArrayList<>();
 	public String username;
 	private String status;
@@ -34,6 +43,10 @@ public class ClientHandler implements Runnable {
 		this.out = new ObjectOutputStream(client.getOutputStream());
 		
 		//this.readFile = new;
+		bos = new ByteArrayOutputStream();
+		outFromServer = new ObjectOutputStream(bos);
+		inFromServer = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()));
+		
 		
 		clientList.add(this);
 		//initiailize status to online once connected 
@@ -45,51 +58,80 @@ public class ClientHandler implements Runnable {
 
 	public void run() {
 		
-		try {
-		    for(Request request = (Request)in.readObject();; request = (Request)in.readObject())
-		    {
-		         //listen for requests
-		    	switch(request.getType()) {
-		    	case "LoginRequest":
-		    		System.out.println("login request");
-		    		LoginRequest loginRequest = (LoginRequest)request;
-		    		System.out.println("attempting to match credentials");
-		    		attemptLogin(loginRequest);
-		    
-		    		break;
-		    		//listen for broadcast request
-		    	case "BroadcastRequest":
-		    		System.out.println("Broadcasting new messasge");
-		    		BroadcastRequest broadcastRequest = (BroadcastRequest) request;
-		    		sendBroadcast(broadcastRequest);
-		    	
-		    		break;
-		    	case "GetStatusRequest":
-		    		getStatusRequest();
-		    		break;
-		    		
-		    	case "SetStatusRequest":
-		    		setStatusRequest(request);
-		    		break;
-		    	case "MessageRequest":
-		    		MessageRequest messageRequest = (MessageRequest) request;
-		    		sendMessageRequest(messageRequest);
-		    		break;
-		    		
-		    	case "NewConvoRequest":
-		    		NewConvoRequest newConvoRequest = (NewConvoRequest) request;
-		    		newConvoRequest(newConvoRequest);
-		    	}
-		    	
-		    		
-
-		    	
-		    }
-		} catch(Exception ex)
-		{
-		    //EOF found
-		}
+		//incoming requests from the client
+		Thread handleClient = new Thread(() -> {
+			try {
+				while(true) {
+					Request request = (Request) in.readObject();
+					processRequest(request);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+		handleClient.start();
+		
+		//incoming requests from server or other client handlers(other threads)
+		Thread handleServer = new Thread(() -> {
+			try {
+				while(true) {
+					try {
+						Request request = (Request) inFromServer.readObject();
+						processRequest(request);
+					} catch (EOFException e) {
+						Thread.sleep(100);
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+		handleServer.start();		
 	
+	}
+	
+	public void processRequest(Request request) throws Exception {
+		 //listen for requests
+    	switch(request.getType()) {
+    	case "LoginRequest":
+    		System.out.println("login request");
+    		LoginRequest loginRequest = (LoginRequest)request;
+    		System.out.println("attempting to match credentials");
+    		attemptLogin(loginRequest);
+    
+    		break;
+    		//listen for broadcast request
+    	case "BroadcastRequest":
+    		System.out.println("Broadcasting new messasge");
+    		BroadcastRequest broadcastRequest = (BroadcastRequest) request;
+    		sendBroadcast(broadcastRequest);
+    	
+    		break;
+    	case "GetStatusRequest":
+    		getStatusRequest();
+    		break;
+    		
+    	case "SetStatusRequest":
+    		Server.userList.put(username, ((SetStatusRequest) request).getStatus());
+    		updateStatus();
+    		break;
+    	case "MessageRequest":
+    		MessageRequest messageRequest = (MessageRequest) request;
+    		sendMessageRequest(messageRequest);
+    		break;
+    		
+    	case "NewConvoRequest":
+    		NewConvoRequest newConvoRequest = (NewConvoRequest) request;
+    		newConvoRequest(newConvoRequest);
+    		break;
+    	
+    	case "GetAllUsersRequest":
+    		GetAllUsersRequestResponse rq = new GetAllUsersRequestResponse(Server.userList);
+    		out.writeObject(rq);
+    		out.flush();
+    		break;	
+
+    	}	
 	}
 	
 	public void sendResponse() throws IOException {
@@ -112,6 +154,25 @@ public class ClientHandler implements Runnable {
 		System.out.println("SetStatusRequest Sorted");
 		
 	}
+	private void updateStatus() throws IOException {
+		for (int i=0; i<clientList.size(); i++) {
+			GetAllUsersRequest rq = new GetAllUsersRequest();
+			clientList.get(i).serverRequest(rq);
+		}
+		
+	}
+	
+	//clienthandler or server can call clientlist.get(n).serverRequest(rq) to initiate  the same response as if the client sent the request
+	private void serverRequest(Request rq) throws IOException {
+		outFromServer.writeObject(rq);//write to this output stream, which writes to bos
+		
+		//use bos to fill the input stream
+		inFromServer = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()));
+		
+		//wipe stream
+		bos = new ByteArrayOutputStream();
+		outFromServer = new ObjectOutputStream(bos);
+	}
 	
 	public void attemptLogin(LoginRequest loginRequest) throws Exception {
 
@@ -133,6 +194,8 @@ public class ClientHandler implements Runnable {
 			out.flush();
 			//set username of user to handler
 			this.username= loginRequest.getUsername();
+			Server.userList.put(username, "online");
+			updateStatus();
 			System.out.println("succesfullogin packet sent");
 			
 		}else {
@@ -147,6 +210,9 @@ public class ClientHandler implements Runnable {
 		
 		
 	}
+	
+
+
 	public void sendBroadcast(BroadcastRequest request) throws IOException {
 		//for ({type of obeject} {name of each item} : {list})
 		BroadcastMessageRequest message = new BroadcastMessageRequest(request.getMessage(), this.username);

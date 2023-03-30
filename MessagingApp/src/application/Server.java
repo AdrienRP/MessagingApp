@@ -15,6 +15,7 @@ public class Server {
 		public static final int PORT = 3191;
 		public ServerSocket ss;
 		public static HashMap<String,String> lc = new HashMap<String, String>();
+		public static HashMap<String,String> userList = new HashMap<String, String>();
 		
 
 		
@@ -30,6 +31,7 @@ public class Server {
 			for (Map.Entry<String, String> entry :
 	             mapFromFile.entrySet()) {
 	            lc.put(entry.getKey(),entry.getValue());
+	            userList.put(entry.getKey(), "offline");
 	        }
 		}
 		
