@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import Requests.GetConversationsRequestResponse;
 import Requests.GetConversationsRequest;
@@ -36,6 +37,7 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -76,9 +78,11 @@ public class Messenger extends Application{
 		private ObservableList<String> contactListContents = FXCollections.observableArrayList();
 		private ObservableList<String> selectedContactListContents = FXCollections.observableArrayList();
 		private ObservableList<String> inboxListContents = FXCollections.observableArrayList();
+
 		public ArrayList<Conversation> conversationList;
 		public Conversation activeConversation;
 		private ObservableList<String> displayedMessages = FXCollections.observableArrayList();
+
 		
 		
 	
@@ -145,9 +149,9 @@ public class Messenger extends Application{
 				    		newConversationReceived(incoming);
 				    		break;
 				    		
-				    	case "GetConversationsRequestResponse":
-				    		buildInboxList(((GetConversationsRequestResponse) incoming).getConversations());
-				    		break;
+				    	//case "GetConversationsRequestResponse":
+				    		//buildInboxList(((GetConversationsRequestResponse) incoming).getConversations());
+				    		//break;
 				    		
 				    	case "NewMessage":
 				    		//new message incoming in conversation_ID "request.getmessage()"
@@ -192,6 +196,7 @@ public class Messenger extends Application{
 	        if (this.certification) {
 	            mainStage.hide();
 	            mainStage = homePage();
+	            buildInboxList(username);
 	            mainStage.show();
 	        } else {
 	            userTextField.clear();
@@ -207,6 +212,7 @@ public class Messenger extends Application{
 		});
 	}
 	
+
 	private void buildInboxList(ArrayList<Conversation> conversations) {
 		//build inboxListContents<STRING> from conversations
 		Platform.runLater(() -> {
@@ -232,6 +238,7 @@ public class Messenger extends Application{
 			}
 		});
 	}
+
 	  
 	public void SuccessfulLoginHandler(SuccessfulLoginRequest request) {
 		
@@ -451,6 +458,7 @@ public class Messenger extends Application{
 		//ListView<File> inboxListView;
 	    TextArea conversationTextArea;
 	    
+	    buildInboxList(username);
 	    
 		double scaleFactor = 1.4;
 
@@ -512,75 +520,90 @@ public class Messenger extends Application{
         	loadActiveConversation();
         });
         
-//        inboxListView.setOnMouseClicked(event -> {
-//            selectedFile = inboxListView.getSelectionModel().getSelectedItem();
-//            if (selectedFile != null) {
-//                try {
-//                	/*
-//                    // Read the contents of the text file using FileReader and BufferedReader
-//                	//for(Conversation convo : Conversation.convoList){
-//                	//	covo.getMembers.contains(this.username){
-//                			convo.getmessages{
-//                				print convo.getmessages.getSender
-//                				print convo.getmessages.getmessage
-//                	//		}
-//                	//
-//                	 * */
-//                	
-//                    FileReader fileReader = new FileReader(selectedFile);
-//                    BufferedReader bufferedReader = new BufferedReader(fileReader);
-//                    StringBuilder conversationText = new StringBuilder();
-//                    String line;
-//                    while ((line = bufferedReader.readLine()) != null) {
-//                        conversationText.append(line).append("\n");
-//                    }
-//                    bufferedReader.close();
-//                    fileReader.close();
-//
-//                    // Set the conversation TextArea text to the contents of the text file
-//                    conversationTextArea.setText(conversationText.toString());
-//
-//                } catch (IOException ex) {
-//                    ex.printStackTrace();
-//                }
-//                //Change conversation name based on which conversation is clicked in the inbox
-//                selectedFile = inboxListView.getSelectionModel().getSelectedItem();
-//                if (selectedFile != null) {
-//                    String conversationTitleText = selectedFile.getName();
-//                    conversationTitle.setText(conversationTitleText);
-//                    try {
-//                        // Read the contents of the text file using FileReader and BufferedReader
-//                        FileReader fileReader = new FileReader(selectedFile);
-//                        BufferedReader bufferedReader = new BufferedReader(fileReader);
-//                        StringBuilder conversationText = new StringBuilder();
-//                        String line;
-//                        while ((line = bufferedReader.readLine()) != null) {
-//                            conversationText.append(line).append("\n");
-//                        }
-//                        bufferedReader.close();
-//                        fileReader.close();
-//
-//                        // Set the conversation TextArea text to the contents of the text file
-//                        conversationTextArea.setText(conversationText.toString());
-//
-//                    } catch (IOException ex) {
-//                        ex.printStackTrace();
-//                    }
-//                }
-//            }
-//        });
+        //Display list of group conversations
+       
+        ListView<String> inboxList = new ListView<>();
+        inboxList.setPrefWidth(300 * scaleFactor);
+        inboxList.setPrefHeight(400 * scaleFactor);
+
+        ObservableList<String> inboxItems = FXCollections.observableArrayList();
+        inboxList.setItems(inboxItems);
+
+        for (GroupConversation groupConversation : groupConversations) {
+            if (groupConversation.getMembers().contains(username)) {
+                inboxItems.add(groupConversation.getGroupName());
+            }
+        }
+        /*
+        inboxListView.setOnMouseClicked(event -> {
+            selectedFile = inboxListView.getSelectionModel().getSelectedItem();
+            if (selectedFile != null) {
+                try {
+                	
+                    Read the contents of the text file using FileReader and BufferedReader
+                	for(Conversation convo : Conversation.convoList){
+                		covo.getMembers.contains(this.username){
+                			convo.getmessages{
+                				print convo.getmessages.getSender
+                				print convo.getmessages.getmessage
+                			}
+                	
+                	 
+                	
+                    FileReader fileReader = new FileReader(selectedFile);
+                    BufferedReader bufferedReader = new BufferedReader(fileReader);
+                    StringBuilder conversationText = new StringBuilder();
+                    String line;
+                    while ((line = bufferedReader.readLine()) != null) {
+                        conversationText.append(line).append("\n");
+                    }
+                    bufferedReader.close();
+                    fileReader.close();
+
+                    // Set the conversation TextArea text to the contents of the text file
+                    conversationTextArea.setText(conversationText.toString());
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+                //Change conversation name based on which conversation is clicked in the inbox
+                selectedFile = inboxListView.getSelectionModel().getSelectedItem();
+                if (selectedFile != null) {
+                    String conversationTitleText = selectedFile.getName();
+                    conversationTitle.setText(conversationTitleText);
+                    try {
+                        // Read the contents of the text file using FileReader and BufferedReader
+                        FileReader fileReader = new FileReader(selectedFile);
+                        BufferedReader bufferedReader = new BufferedReader(fileReader);
+                        StringBuilder conversationText = new StringBuilder();
+                        String line;
+                        while ((line = bufferedReader.readLine()) != null) {
+                            conversationText.append(line).append("\n");
+                        }
+                        bufferedReader.close();
+                       fileReader.close();
+
+                        // Set the conversation TextArea text to the contents of the text file
+                        conversationTextArea.setText(conversationText.toString());
+
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        });
 
         // Add the files to the inbox
-//        File[] files = new File("MessagingApp/src").listFiles();
-//        if (files != null) {
-//            // Sort the files based on last modified time (most recent first)
-//            Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
-//            for (File file : files) {
-//                if (file.isFile() && file.getName().endsWith(".txt")) {
-//                    inboxListView.getItems().add(file);
-//                }
-//            }
-//        }
+        File[] files = new File("MessagingApp/src").listFiles();
+        if (files != null) {
+            // Sort the files based on last modified time (most recent first)
+            Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
+            for (File file : files) {
+                if (file.isFile() && file.getName().endsWith(".txt")) {
+                    inboxListView.getItems().add(file);
+                }
+           }
+       }*/
         
         // Create the text box
         TextField textBox = new TextField();
@@ -712,7 +735,8 @@ public class Messenger extends Application{
         groupNameContainer.getChildren().addAll(groupName, groupNameTextField);
 
         //Create label for users added
-        Label usersAdded = new Label("Users Added:");
+        usersAdded = new Label("Users Added:");
+        updateSelectedContacts(username, true);
 
         //Create the "create group" button
         Button createGroupButton = new Button("Create Group");
@@ -741,6 +765,36 @@ public class Messenger extends Application{
         
        
         requestAllUsers();
+        
+        //Add or remove users from the group by clicking them on the contact list
+        contactList.setOnMouseClicked(event -> {
+            String selectedContact = contactList.getSelectionModel().getSelectedItem();
+            if (selectedContact != null) {
+                if (selectedContacts.contains(selectedContact)) {
+                    updateSelectedContacts(selectedContact, false);
+                } else {
+                    updateSelectedContacts(selectedContact, true);
+                }
+            }
+        });
+        //Store group conversation on Create group button
+       
+
+      //...
+
+        createGroupButton.setOnAction(event -> {
+            if (selectedContacts.size() > 0 && !groupNameTextField.getText().isEmpty()) {
+                String groupNameInput = groupNameTextField.getText();
+                createGroup(groupNameInput, selectedContacts);
+                showAlert("Group Created", "Group '" + groupNameInput + "' was successfully created!");
+                groupNameTextField.clear();
+                selectedContacts.clear();
+                updateSelectedContacts(null, false);
+            } else {
+                showAlert("Error", "Please enter a group name and add at least one contact.");
+            }
+        });
+        
         
         //Create vbox for contact label and contacts
         VBox vbox2 = new VBox();
@@ -787,6 +841,8 @@ public class Messenger extends Application{
         layout.setLeft(vbox2);
         layout.setBottom(bottomBar);
         
+      
+        
         
      // Put the txt file in the conversation window
         File selectedFile = new File("src/Empty.txt");
@@ -826,6 +882,8 @@ public class Messenger extends Application{
             }
         });
         
+        
+        
         // Set action for Home button
         homeButton.setOnAction(e -> {
         	mainStage.hide();
@@ -860,7 +918,56 @@ public class Messenger extends Application{
 
     }
 
-	
+	private void createGroup(String groupName, ObservableList<String> members) {
+	    String fileName = groupName + ".txt";
+	    File conversationFile = new File("src/" + fileName);
+	    
+
+	    try {
+	        if (conversationFile.createNewFile()) {
+	            FileWriter writer = new FileWriter(conversationFile);
+
+	            // Add the current user to the conversation file if they're not already included
+	            if (!members.contains(username)) {
+	                members.add(username);
+	            }
+
+	            for (String contact : members) {
+	                writer.write(contact + "\n");
+	            }
+	            writer.close();
+
+	            // Update the inbox list
+	           // inboxListContents.add(groupName);
+	        } else {
+	            showAlert("Error", "A group with this name already exists.");
+	        }
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+	}
+
+	private void showAlert(String title, String content) {
+    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    alert.setTitle(title);
+    alert.setHeaderText(null);
+    alert.setContentText(content);
+    alert.showAndWait();
+}
+
+	//Create observable list for selected contacts and display the users added in the users added section
+    private ObservableList<String> selectedContacts = FXCollections.observableArrayList();
+    private Label usersAdded;
+
+    private void updateSelectedContacts(String contact, boolean add) {
+        if (add && !selectedContacts.contains(contact)) {
+            selectedContacts.add(contact);
+        } else {
+            selectedContacts.remove(contact);
+        }
+        selectedContactListContents.setAll(selectedContacts);
+        usersAdded.setText("Users Added: " + String.join(", ", selectedContacts));
+    }
 	
 	
 	public static void main(String[] args) {
