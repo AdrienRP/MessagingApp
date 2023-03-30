@@ -8,6 +8,7 @@ import java.io.EOFException;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 
@@ -277,8 +278,8 @@ public class ClientHandler implements Runnable {
 			   //output conversation to user
 		    	for(ClientHandler client: clientList) {
 		    		if(members.contains(client.getUsername())){
-		    			out.writeObject(newConversation);
-		    			out.flush();
+		    			client.out.writeObject(newConversation);
+		    			client.out.flush();
 		    			break;
 		    		}
 		    	}
@@ -289,14 +290,27 @@ public class ClientHandler implements Runnable {
 	}
 	public void sendMessageRequest(MessageRequest request) throws IOException {
 		int id= request.getConversation_ID();
+		//find conversation to send message to
 		for(Conversation convo: Conversation.convoList) {
 			if (convo.getConversation_ID() == id) {
+				//add message to conversation
 				Message message = new Message(request.getSender(), request.getMessage());
 				convo.addMessage(message);
-				for(String member: convo.getMembers()) {
-					out.writeObject(new Request("NewMessage", Integer.toString(convo.getConversation_ID())));
-	    			out.flush();
-	    			
+				
+				//save convo to database
+				String location = "MessagingApp/src/application/"+Integer.toString(convo.getConversation_ID())+".txt";
+	        	File file = new File(location);
+	     		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
+	     		oos.writeObject(convo);
+	     		oos.close();
+	     		System.out.println("Conversatin updated: "+Integer.toString(convo.getConversation_ID()));
+				
+	     		//notify active users of update
+				for(ClientHandler client: clientList) {
+					if(convo.getMembers().contains(client.username)) {
+						client.out.writeObject(new Request("NewMessage", Integer.toString(convo.getConversation_ID())));
+		    			client.out.flush();
+					}
 					
 				}
 			}
