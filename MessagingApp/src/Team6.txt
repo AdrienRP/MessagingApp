@@ -1,0 +1,3 @@
+b [offline]
+terry [online]
+d [offline]

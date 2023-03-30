@@ -1,8 +1,13 @@
 package application;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 public class Conversation implements Serializable{
 	/**
@@ -58,6 +63,31 @@ public class Conversation implements Serializable{
 		
 		
 	}
+	
+	 public static List<String> getAllConversationsForUser(String username) {
+	        List<String> conversationNames = new ArrayList<>();
+
+	        // Read the conversations.txt file
+	        try (BufferedReader br = new BufferedReader(new FileReader("/MessagingApp/src/conversations.txt"))) {
+	            String line;
+	            while ((line = br.readLine()) != null) {
+	                String[] parts = line.split(";");
+	                String conversationName = parts[0];
+	                List<String> usersInConversation = Arrays.asList(parts[1].split(","));
+
+	                if (usersInConversation.contains(username)) {
+	                    conversationNames.add(conversationName);
+	                }
+	            }
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+
+	        return conversationNames;
+	    }
+	
+	
+	
 	public int getConversation_ID() {
 		return this.conversation_ID;
 	}
