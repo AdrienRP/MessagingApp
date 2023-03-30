@@ -76,6 +76,9 @@ public class Messenger extends Application{
 		private ObservableList<String> contactListContents = FXCollections.observableArrayList();
 		private ObservableList<String> selectedContactListContents = FXCollections.observableArrayList();
 		private ObservableList<String> inboxListContents = FXCollections.observableArrayList();
+		public ArrayList<Conversation> conversationList;
+		public Conversation activeConversation;
+		private ObservableList<String> displayedMessages = FXCollections.observableArrayList();
 		
 		
 	
@@ -207,12 +210,27 @@ public class Messenger extends Application{
 	private void buildInboxList(ArrayList<Conversation> conversations) {
 		//build inboxListContents<STRING> from conversations
 		Platform.runLater(() -> {
+			conversationList = new ArrayList<>();
 			inboxListContents.removeAll(inboxListContents);
 			for(Conversation convo: conversations) {
+				conversationList.add(convo);
 				inboxListContents.add(new String(convo.getGroupName()));
 			}
 		});
 		
+	}
+	
+	public void loadActiveConversation() {
+		Platform.runLater(() -> {
+			displayedMessages.removeAll(displayedMessages);
+			try {
+				for (Message msg: activeConversation.getMessages()) {
+					displayedMessages.add(new String(msg.getUser() + ": " + msg.getMessages()));
+				}
+			} catch (Exception e) {
+				displayedMessages.removeAll(displayedMessages);
+			}
+		});
 	}
 	  
 	public void SuccessfulLoginHandler(SuccessfulLoginRequest request) {
@@ -338,7 +356,7 @@ public class Messenger extends Application{
 //SCENE BUILDERS
 	public Scene loginScene() {
 		
-		double scaleFactor = 1.8;
+		double scaleFactor = 1.4;
     
         // Create a GridPane layout
         GridPane grid = new GridPane();
@@ -428,13 +446,13 @@ public class Messenger extends Application{
 		
 	}
 
-		
+//=============HOMEPAGE============================//		
 	public Stage homePage() {
 		//ListView<File> inboxListView;
 	    TextArea conversationTextArea;
 	    
 	    
-		double scaleFactor = 1.8;
+		double scaleFactor = 1.4;
 
 
         // Create the plus button
@@ -489,6 +507,10 @@ public class Messenger extends Application{
         inboxListView.setPrefWidth(150 * scaleFactor); // set preferred width
         inboxListView.setPrefHeight(400 * scaleFactor);
         
+        inboxListView.setOnMouseClicked(event -> {
+        	activeConversation = conversationList.get(inboxListView.getSelectionModel().getSelectedIndex());
+        	loadActiveConversation();
+        });
         
 //        inboxListView.setOnMouseClicked(event -> {
 //            selectedFile = inboxListView.getSelectionModel().getSelectedItem();
@@ -641,9 +663,9 @@ public class Messenger extends Application{
         
         return stage;
 	}
-	
+//==================CREATE PAGE=============================//	
 	public Stage create() throws IOException {
-		double scaleFactor = 1.8;
+		double scaleFactor = 1.4;
     	
 
         // Create the plus button

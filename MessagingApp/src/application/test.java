@@ -33,26 +33,26 @@ public class test {
 		Conversation convoB = new Conversation(namesB, "lmao");
 		Conversation convoc = new Conversation(namesC, "asdf");
 		
-		for (Conversation convo: Conversation.convoList) {
-			ArrayList<String> temp = convo.getMembers();
-			Collections.sort(temp);
-			System.out.println(temp);
-		}
-		
-		ArrayList<String> temp= (ArrayList<String>) namesB.clone();
-		System.out.println("temp"+temp);
-		System.out.println("NamesB" + namesB);
-		temp.add("c");
-		System.out.println("temp"+temp);
-		System.out.println("NamesB" + namesB);
-
-		if (namesB.equals(namesC)) {
-			System.out.println("equal");
-			
-		}
-		else {
-			System.out.println("not smae");
-		}
+//		for (Conversation convo: Conversation.convoList) {
+//			ArrayList<String> temp = convo.getMembers();
+//			Collections.sort(temp);
+//			System.out.println(temp);
+//		}
+//		
+//		ArrayList<String> temp= (ArrayList<String>) namesB.clone();
+//		System.out.println("temp"+temp);
+//		System.out.println("NamesB" + namesB);
+//		temp.add("c");
+//		System.out.println("temp"+temp);
+//		System.out.println("NamesB" + namesB);
+//
+//		if (namesB.equals(namesC)) {
+//			System.out.println("equal");
+//			
+//		}
+//		else {
+//			System.out.println("not smae");
+//		}
 		
         for(Conversation convo: Conversation.convoList) {
        	String location = "MessagingApp/src/application/"+Integer.toString(convo.getConversation_ID())+".txt";
