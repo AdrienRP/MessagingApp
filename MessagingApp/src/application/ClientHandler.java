@@ -1,5 +1,10 @@
 package application;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -91,6 +96,9 @@ public class ClientHandler implements Runnable {
 		}
 	
 	}
+	public String getUsername() {
+		return this.username;
+	}
 	
 	public void sendResponse() throws IOException {
 		Request response = new Request("Youre request has been sorted");
@@ -160,16 +168,47 @@ public class ClientHandler implements Runnable {
 		}
 		
 	}
-	public void newConvoRequest(NewConvoRequest request) {
+	public void newConvoRequest(NewConvoRequest request) throws IOException {
 		Conversation conversation = new Conversation(request.getMembers(), request.getGroupName());
 		//if conversation successfully created
 		if(conversation.isUnique()) {
+			//update server.txt for count on server reboot
+		    String str = Integer.toString( Conversation.convoList.size());
+		    BufferedWriter writer = new BufferedWriter(new FileWriter("MessagingApp/src/application/Server.txt"));
+		    writer.write(str);
+		    writer.close();
 			//add conversation to each user in conversation.
+		    ArrayList<String> members = conversation.getMembers();
+		    Request newConversation = new Request("NewConversationRequest",Integer.toString(conversation.getConversation_ID()));
+		    for(String member: members) {
+			   //output conversation to user
+		    	for(ClientHandler client: clientList) {
+		    		if(members.contains(client.getUsername())){
+		    			out.writeObject(newConversation);
+		    			out.flush();
+		    			break;
+		    		}
+		    	}
+		    	
+		   }	
 			
 		}
 	}
-	public void sendMessageRequest(MessageRequest request) {
-		//handle messageRequest
+	public void sendMessageRequest(MessageRequest request) throws IOException {
+		int id= request.getConversation_ID();
+		for(Conversation convo: Conversation.convoList) {
+			if (convo.getConversation_ID() == id) {
+				Message message = new Message(request.getSender(), request.getMessage());
+				convo.addMessage(message);
+				for(String member: convo.getMembers()) {
+					out.writeObject(new Request("NewMessage", Integer.toString(convo.getConversation_ID())));
+	    			out.flush();
+	    			
+					
+				}
+			}
+			
+		}
 		
 	}
 

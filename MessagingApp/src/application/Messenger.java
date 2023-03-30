@@ -120,6 +120,13 @@ public class Messenger extends Application{
 				    		System.out.println("status update: " + incoming.getMessage());
 				    		break;
 				    	
+				    	case "NewConversationRequest":
+				    		newConversationReceived(incoming);
+				    		break;
+				    		
+				    	case "NewMessage":
+				    		//new message incoming in conversation_ID "request.getmessage()"
+				    		
 				    	}
 				    }
 				} catch(IOException | ClassNotFoundException ex)
@@ -232,11 +239,13 @@ public class Messenger extends Application{
 		this.os.writeObject(newConvoRequest);
 		this.os.reset();
 		
-		
+	}
+	public void newConversationReceived(Request request) {
+		System.out.println("you have been added to conversation_ID: " + request.getMessage());
 	}
 	
-	public void sendMessage(String user, String message) throws IOException {
-		MessageRequest messageRequest = new MessageRequest(this.username, user,message);
+	public void sendMessage(int conversation, String message) throws IOException {
+		MessageRequest messageRequest = new MessageRequest(this.username, conversation,message);
 		this.os.writeObject(messageRequest);
 		this.os.reset();
 		System.out.println("MessageRequest Sent");
@@ -423,7 +432,17 @@ public class Messenger extends Application{
             selectedFile = inboxListView.getSelectionModel().getSelectedItem();
             if (selectedFile != null) {
                 try {
+                	/*
                     // Read the contents of the text file using FileReader and BufferedReader
+                	//for(Conversation convo : Conversation.convoList){
+                	//	covo.getMembers.contains(this.username){
+                			convo.getmessages{
+                				print convo.getmessages.getSender
+                				print convo.getmessages.getmessage
+                	//		}
+                	//
+                	 * */
+                	
                     FileReader fileReader = new FileReader(selectedFile);
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
                     StringBuilder conversationText = new StringBuilder();
@@ -561,4 +580,4 @@ public class Messenger extends Application{
 		
 	
 
-}
+}//

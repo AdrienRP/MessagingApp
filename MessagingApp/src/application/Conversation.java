@@ -80,4 +80,12 @@ public class Conversation implements Serializable{
 	public boolean isUnique() {
 		return this.isUnique();
 	}
+	public int getConversationID() {
+		return this.conversation_ID;
+	}
+	
+	public void addMessage(Message message) {
+		this.messages.add(message);
+		
+	}
 }
