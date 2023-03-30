@@ -31,7 +31,7 @@ public class test {
 		Conversation convoA = new Conversation(namesA, "funTeam");
 		
 		Conversation convoB = new Conversation(namesB, "lmao");
-		Conversation convoc = new Conversation(namesC, "lmao");
+		Conversation convoc = new Conversation(namesC, "asdf");
 		
 		for (Conversation convo: Conversation.convoList) {
 			ArrayList<String> temp = convo.getMembers();
@@ -63,6 +63,15 @@ public class test {
     		System.out.println("Output convoID: "+Integer.toString(convo.getConversation_ID()));
        	 
            }
+        /*
+        for(Conversation convo: Conversation.convoList) {
+        	
+        	if(convo.getMembers().contains(this.user)) {
+        		convo.getMessage();
+        	};
+        }
+        */
+        
 		
 	}
 
