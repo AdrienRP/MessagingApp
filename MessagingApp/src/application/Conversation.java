@@ -19,48 +19,40 @@ public class Conversation implements Serializable{
 	private String conversationType;
 	private ArrayList<Message> messages;
 	private String groupName;
-	private boolean unique;
 	public static ArrayList<Conversation> convoList = new ArrayList<>();
 	
 	
 	
-
+	//TEST FOR UNIQUENESS BEFORE CALLING THIS CONSTRUCTOR, NO REASONABLE WAY TO ABORT CONSTRUCTION ONCE CALLED
+	//DON'T MAKE MULTIPLE CONVERSATIONS WITH THE SAME MEMBERS
 	public Conversation(ArrayList<String> members, String groupName) {
 		
 		//check if conversation between individuals exists
 		//sort Members for matching purposes
-		ArrayList<String> names = (ArrayList<String>) members.clone();
-		Collections.sort(names);
-		unique = true;
-		
-		for(Conversation convo: Conversation.convoList) {
-			if(convo.equals(names)) {
-				//conversation already exists
-				unique= false;
-			}
+		this.members = new ArrayList<>();
+		for(String name: members) {
+			System.out.println("addmember " + name);
+			this.members.add(new String(name));
 		}
+		Collections.sort(this.members);
 		
-		if(unique = true) {
-			// set group name if more than 2 members
-			if (members.size() <=2) {
-				this.conversationType = "Individual";
-			}
-			else {
-				this.conversationType = "Group";
-				this.groupName = groupName;
-			}
-			//add group members
-			this.members = members;
-			
-			//give conversation an ID and add to static list
-			this.conversation_ID = Conversation.convoList.size();
-			convoList.add(this);
-
+		// set group name if more than 2 members
+		if (members.size() <=2) {
+			this.conversationType = "Individual";
 		}
 		else {
-			System.out.println("Conversation already exists");
+			this.conversationType = "Group";
 		}
 		
+		this.groupName = new String(groupName);
+		
+		//add group members
+		this.members = members;
+		
+		//give conversation an ID and add to static list
+		this.conversation_ID = Conversation.convoList.size();
+		convoList.add(this);
+		Server.allConversations.add(this);
 		
 	}
 	

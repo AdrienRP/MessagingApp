@@ -159,6 +159,8 @@ public class ClientHandler implements Runnable {
 	private ArrayList<Conversation> getUsersConversations() {
 		ArrayList<Conversation> list = new ArrayList<>();
 		for(Conversation conv: Server.allConversations) {
+			System.out.println(conv.getGroupName());
+			System.out.println(conv.getMembers().toString());
 			if(conv.getMembers().contains(username)) {
 				list.add(conv);
 			}
