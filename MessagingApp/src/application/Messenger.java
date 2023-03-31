@@ -240,7 +240,10 @@ public class Messenger extends Application{
 		Platform.runLater(() -> {
 			
 			contactListContents.removeAll(contactListContents);
-			userList.forEach((user,status) -> contactListContents.add(new String(user + " [" + status + "]")));
+			userList.forEach((user,status) -> {
+				if (!user.equals(this.username)) contactListContents.add(new String(user + " [" + status + "]"));
+				
+		});
 			
 			
 		});
@@ -547,7 +550,7 @@ public class Messenger extends Application{
 
         //Create the drop down list
         ComboBox<String> onlineStatusDropdown = new ComboBox<>();
-        onlineStatusDropdown.getItems().addAll("Online", "Away", "Busy");
+        onlineStatusDropdown.getItems().addAll("Online", "Away", "Busy", "Out to Lunch", "On the Phone", "Away from Desk");
         onlineStatusDropdown.setValue(status);
         
  //set status
@@ -807,7 +810,7 @@ public class Messenger extends Application{
 
         //Create the drop down list (create page)
         ComboBox<String> onlineStatusDropdown = new ComboBox<>();
-        onlineStatusDropdown.getItems().addAll("Online", "Away", "Busy");
+        onlineStatusDropdown.getItems().addAll("Online", "Away", "Busy", "Out to Lunch", "On the Phone", "Away from Desk");
         onlineStatusDropdown.setValue(status);
         
         onlineStatusDropdown.setOnAction(event -> {
