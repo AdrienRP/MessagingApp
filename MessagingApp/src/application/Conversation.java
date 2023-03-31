@@ -18,8 +18,7 @@ public class Conversation implements Serializable{
 	
 	
 	
-	//TEST FOR UNIQUENESS BEFORE CALLING THIS CONSTRUCTOR, NO REASONABLE WAY TO ABORT CONSTRUCTION ONCE CALLED
-	//DON'T MAKE MULTIPLE CONVERSATIONS WITH THE SAME MEMBERS
+
 	public Conversation(ArrayList<String> members, String groupName) {
 		
 		//check if conversation between individuals exists

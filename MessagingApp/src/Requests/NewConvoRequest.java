@@ -1,22 +1,17 @@
 package Requests;
 
-import java.util.AbstractList;
 import java.util.ArrayList;
 
 public class NewConvoRequest extends Request{
-	
-	private ArrayList<String> members;
-	private String groupName;
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
+	
+	private ArrayList<String> members = new ArrayList<>();;
+	private String groupName;
 
 	public NewConvoRequest(ArrayList<String> members) {
 		super("NewConvoRequest");
 		for (String user : members) {
-			this.members.add(user);
+			this.members.add(new String(user));
 		}
 		this.groupName=null;
 			
@@ -26,7 +21,7 @@ public class NewConvoRequest extends Request{
 	public NewConvoRequest(ArrayList<String> members, String groupName) {
 		super("NewConvoRequest");
 		for (String user : members) {
-			this.members.add(user);
+			this.members.add(new String(user));
 		}
 		this.groupName=groupName;
 
