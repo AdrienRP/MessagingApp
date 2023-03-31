@@ -151,7 +151,9 @@ public class Messenger extends Application{
 				    		break;
 				    		
 				    	case "GetConversationsRequestResponse":
+				    		System.out.println("got updated convos");
 				    		buildInboxList(((GetConversationsRequestResponse) incoming).getConversations());
+				    		loadActiveConversation();
 				    		break;
 				    		
 				    	case "NewMessage":
@@ -225,9 +227,6 @@ public class Messenger extends Application{
 		
 	}
 	
-	public void sendMessage(String text) {
-		//send the request to append message to the convo
-	}
 	
 	public void loadActiveConversation() {
 		Platform.runLater(() -> {
@@ -345,10 +344,10 @@ public class Messenger extends Application{
 		System.out.println("you have been added to conversation_ID: " + request.getMessage());
 	}
 	
-	public void sendMessage(int conversation, String message) throws IOException {
-		MessageRequest messageRequest = new MessageRequest(this.username, conversation,message);
+	public void sendMessage(int conversationID, String message) throws IOException {
+		MessageRequest messageRequest = new MessageRequest(this.username, conversationID,message);
 		this.os.writeObject(messageRequest);
-		this.os.reset();
+		this.os.flush();
 		System.out.println("MessageRequest Sent");
 	}
 
@@ -516,7 +515,7 @@ public class Messenger extends Application{
         
         
         //Create the conversation area using a listview
-        ListView<String> conversationListView = new ListView<>(inboxListContents);
+        ListView<String> conversationListView = new ListView<>(displayedMessages);
         try {
 			getConversations();
 		} catch (IOException e1) {
@@ -677,9 +676,15 @@ public class Messenger extends Application{
         
         //Send message
         
-        /*
+        
         sendButton.setOnAction(event -> {
-        	sendMessage(textBox.getText());
+        	try {
+				sendMessage(activeConversation.getConversationID(), textBox.getText());
+				System.out.println(activeConversation.getConversationID() + " " + textBox.getText());
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
             //String message = usernameLabel.getText() + ": " + textBox.getText() + "\n";
             //conversationTextArea.appendText(message);
             textBox.clear();
@@ -694,7 +699,7 @@ public class Messenger extends Application{
 //                ex.printStackTrace();
 //            }
             
-        });*/
+        });
         
         plusButton.setOnAction(e -> {
         	mainStage.hide();

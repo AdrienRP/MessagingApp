@@ -8,6 +8,7 @@ import java.io.EOFException;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 
@@ -133,8 +134,10 @@ public class ClientHandler implements Runnable {
     		updateStatus();
     		break;
     	case "MessageRequest":
+    		System.out.println("server received messsagerequest1");
     		MessageRequest messageRequest = (MessageRequest) request;
     		sendMessageRequest(messageRequest);
+    		System.out.println("server received messsagerequest2");
     		break;
     		
     	case "NewConvoRequest":
@@ -273,21 +276,41 @@ public class ClientHandler implements Runnable {
 		
 	}
 	public void sendMessageRequest(MessageRequest request) throws IOException {
-		int id= request.getConversation_ID();
-		for(Conversation convo: Conversation.convoList) {
-			if (convo.getConversation_ID() == id) {
-				Message message = new Message(request.getSender(), request.getMessage());
-				convo.addMessage(message);
-				for(String member: convo.getMembers()) {
-					out.writeObject(new Request("NewMessage", Integer.toString(convo.getConversation_ID())));
-	    			out.flush();
-	    			
-					
-				}
-			}
-			
-		}
-		
-	}
+        int id= request.getConversation_ID();
+        //find conversation to send message to
+        for(Conversation convo: Server.allConversations) {
+        	System.out.println(convo.getConversationID());
+            if (convo.getConversation_ID() == id) {
+                //add message to conversation
+                Message message = new Message(request.getSender(), request.getMessage());
+                convo.addMessage(message);
+
+                //save convo to database
+                String location = "MessagingApp/src/application/"+Integer.toString(convo.getConversation_ID())+".txt";
+                File file = new File(location);
+                 ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
+                 oos.writeObject(convo);
+                 oos.close();
+                 System.out.println("Conversatin updated: "+Integer.toString(convo.getConversation_ID()));
+
+                 //notify active users of update
+                for(ClientHandler client: clientList) {
+                	System.out.println("check " + client.username);
+                    if(convo.getMembers().contains(client.username)) {
+                    	System.out.println("update " + client.username);
+                    	GetConversationsRequest rq = new GetConversationsRequest();
+            			client.serverRequest(rq);
+                    	
+                    	//client.out.writeObject(new Request("NewMessage", Integer.toString(convo.getConversation_ID())));
+                        //client.out.flush();
+                    }
+
+                }
+                
+            }
+
+        }
+
+    }
 
 }

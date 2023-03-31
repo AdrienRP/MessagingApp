@@ -33,6 +33,9 @@ public class test {
 		Conversation convoB = new Conversation(namesB, "lmao");
 		Conversation convoc = new Conversation(namesC, "asdf");
 		
+		convoc.addMessage(new Message("a", "hello"));
+		convoc.addMessage(new Message("b", "hello"));
+		
 //		for (Conversation convo: Conversation.convoList) {
 //			ArrayList<String> temp = convo.getMembers();
 //			Collections.sort(temp);

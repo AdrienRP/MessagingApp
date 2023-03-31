@@ -12,7 +12,7 @@ public class Conversation implements Serializable{
 	private int conversation_ID;
 	private ArrayList<String> members;
 	private String conversationType;
-	private ArrayList<Message> messages;
+	private ArrayList<Message> messages = new ArrayList<>();
 	private String groupName;
 	public static ArrayList<Conversation> convoList = new ArrayList<>();
 	
