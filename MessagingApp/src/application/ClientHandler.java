@@ -267,6 +267,17 @@ public class ClientHandler implements Runnable {
 	public void makeNewConvo(String groupName, ArrayList<String> members) throws IOException {
 		System.out.println("A");
 		new Conversation(members, groupName);
+		//increase file count
+		File file = new File("MessagingApp/src/application/Server.txt");
+        FileWriter writer = new FileWriter(file);
+        int convonum = Conversation.getConvoList().size();
+        String num = Integer.toString(convonum);
+        writer.write(num);
+        writer.close();
+        System.out.println(convonum + "number of convos");
+        System.out.println("Conversations on server ="+ convonum);
+		
+		
 		for (int i=0; i<clientList.size(); i++) {
 			if (members.contains(clientList.get(i).getUsername())) {
 				GetConversationsRequest rq = new GetConversationsRequest();

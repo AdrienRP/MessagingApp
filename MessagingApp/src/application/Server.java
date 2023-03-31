@@ -26,7 +26,7 @@ public class Server {
 
 
 		public static ArrayList<Conversation> allConversations = new ArrayList<>();
-		public int convoNumber;
+		public static int convoNumber;
 
 		
 		
