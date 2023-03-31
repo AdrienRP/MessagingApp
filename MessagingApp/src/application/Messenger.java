@@ -289,6 +289,10 @@ public class Messenger extends Application{
 		for(Conversation convo: conversationList) {
 			if(convo.getConversationID() == id) {
 				convo.addMessage(newmsg);
+				Platform.runLater(() -> {
+					if (activeConversation == null || convo.getConversationID() != activeConversation.getConversationID()) showAlert("Inbox", "You've got mail!");
+				});
+								
 				break;
 			}
 		}

@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 
 import Requests.GetConversationsRequestResponse;
@@ -79,6 +80,8 @@ public class ClientHandler implements Runnable {
 						processRequest(request);
 					} catch (EOFException e) {
 						Thread.sleep(100);
+					} catch (SocketException e) {
+						break;
 					}
 				}
 			} catch (Exception e) {
@@ -118,6 +121,8 @@ public class ClientHandler implements Runnable {
 			if(this.client != null) {
 				this.client.close();
 			}
+			Server.userList.put(username, "offline");
+    		updateStatus();
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
