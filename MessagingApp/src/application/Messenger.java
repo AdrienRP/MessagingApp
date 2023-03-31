@@ -2,29 +2,21 @@
 
 package application;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
-
-
 import Requests.GetConversationsRequestResponse;
 import Requests.GetConversationsRequest;
 import Requests.GetAllUsersRequestResponse;
 import Requests.GetAllUsersRequest;
 import Requests.BroadcastMessageRequest;
 import Requests.BroadcastRequest;
+import Requests.ConversationUpdateRequest;
 import Requests.LoginRequest;
 import Requests.Request;
 import Requests.SetStatusRequest;
@@ -49,10 +41,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -152,8 +142,22 @@ public class Messenger extends Application{
 				    		
 				    	case "GetConversationsRequestResponse":
 				    		System.out.println("got updated convos");
+				    		GetConversationsRequestResponse request = (GetConversationsRequestResponse) incoming;
+				    		//updateConversation(request);
 				    		buildInboxList(((GetConversationsRequestResponse) incoming).getConversations());
 				    		loadActiveConversation();
+				    		break;
+				    	case "ConversationUpdateRequest":
+				    		System.out.println("Conversatino update request received");
+				    		
+				    		ConversationUpdateRequest rq = (ConversationUpdateRequest)incoming;
+				    		updateConversation(rq);
+				    		System.out.println("conversation updated");
+				    		buildInboxList(conversationList);
+				    		System.out.println("buildInboxList executed");
+				    		loadActiveConversation();
+				    		System.out.println("loadActiveConversation executed");
+				    		
 				    		break;
 				    		
 				    	case "NewMessage":
@@ -209,8 +213,11 @@ public class Messenger extends Application{
 	
 	private void buildUserList(HashMap<String,String> userList) {
 		Platform.runLater(() -> {
+			
 			contactListContents.removeAll(contactListContents);
 			userList.forEach((user,status) -> contactListContents.add(new String(user + " [" + status + "]")));
+			
+			
 		});
 	}
 	
@@ -222,6 +229,11 @@ public class Messenger extends Application{
 			for(Conversation convo: conversations) {
 				conversationList.add(convo);
 				inboxListContents.add(new String(convo.getGroupName()));
+				//testing
+				for(Message msg: convo.getMessages()) {
+					System.out.println(msg.getUser() + ": " + msg.getMessages());
+				}
+				//testing
 			}
 		});
 		
@@ -234,11 +246,28 @@ public class Messenger extends Application{
 			try {
 				for (Message msg: activeConversation.getMessages()) {
 					displayedMessages.add(new String(msg.getUser() + ": " + msg.getMessages()));
+					
 				}
 			} catch (Exception e) {
 				displayedMessages.removeAll(displayedMessages);
 			}
 		});
+	}
+	
+	public void updateConversation(ConversationUpdateRequest request) {
+		//update activeConversation object
+		
+		int id = request.getID();
+		String sender= request.getSender();
+		String message = request.getMessage();
+		Message newmsg= new Message(sender, message);
+		for(Conversation convo: conversationList) {
+			if(convo.getConversationID() == id) {
+				convo.addMessage(newmsg);
+				break;
+			}
+		}
+		
 	}
 	
 	

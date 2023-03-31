@@ -25,6 +25,7 @@ import Requests.GetAllUsersRequestResponse;
 import Requests.GetAllUsersRequest;
 import Requests.BroadcastMessageRequest;
 import Requests.BroadcastRequest;
+import Requests.ConversationUpdateRequest;
 import Requests.LoginRequest;
 import Requests.MessageRequest;
 import Requests.NewConvoRequest;
@@ -303,20 +304,22 @@ public class ClientHandler implements Runnable {
                  oos.writeObject(convo);
                  oos.close();
                  System.out.println("Conversatin updated: "+Integer.toString(convo.getConversation_ID()));
-
+                 
+                 
                  //notify active users of update
-                for(ClientHandler client: clientList) {
-                	System.out.println("check " + client.username);
-                    if(convo.getMembers().contains(client.username)) {
-                    	System.out.println("update " + client.username);
-                    	GetConversationsRequest rq = new GetConversationsRequest();
-            			client.serverRequest(rq);
-                    	
-                    	//client.out.writeObject(new Request("NewMessage", Integer.toString(convo.getConversation_ID())));
-                        //client.out.flush();
-                    }
+                 for(ClientHandler client: clientList) {
+                	System.out.println("user list =" + convo.getMembers());
+                 	System.out.println("checking " + client.username);
+                     if(convo.getMembers().contains(client.username)) {
+                     	System.out.println("update " + client.username);
+                     	ConversationUpdateRequest rq = new ConversationUpdateRequest(id, message.getUser(), message.getMessages());
+             			client.out.writeObject(rq);
+             			client.out.flush();
+             			System.out.println("update sent to "+ client.username);
+                     	
+                     }
+                 }
 
-                }
                 
             }
 
