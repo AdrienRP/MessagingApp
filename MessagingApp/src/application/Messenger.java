@@ -18,6 +18,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+
 import Requests.GetConversationsRequestResponse;
 import Requests.GetConversationsRequest;
 import Requests.GetAllUsersRequestResponse;
@@ -55,6 +56,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.scene.control.Alert;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -79,6 +81,8 @@ public class Messenger extends Application{
 		public ArrayList<Conversation> conversationList;
 		public Conversation activeConversation;
 		private ObservableList<String> displayedMessages = FXCollections.observableArrayList();
+		private ObservableList<String> selectedContacts = FXCollections.observableArrayList();
+
 		
 		
 	
@@ -232,6 +236,45 @@ public class Messenger extends Application{
 			}
 		});
 	}
+	
+	
+	
+	private void createGroup(String groupName, ObservableList<String> members) {
+        String fileName = groupName + ".txt";
+        File conversationFile = new File("MessagingApp/src/" + fileName);
+        
+
+        try {
+            if (conversationFile.createNewFile()) {
+                FileWriter writer = new FileWriter(conversationFile);
+
+                // Add the current user to the conversation file if they're not already included
+                if (!members.contains(username)) {
+                    members.add(username);
+                }
+
+                for (String contact : members) {
+                    writer.write(contact + "\n");
+                }
+                writer.close();
+
+                // Update the inbox list
+               // inboxListContents.add(groupName);
+            } else {
+                showAlert("Error", "A group with this name already exists.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showAlert(String title, String content) {
+    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    alert.setTitle(title);
+    alert.setHeaderText(null);
+    alert.setContentText(content);
+    alert.showAndWait();
+}
 	  
 	public void SuccessfulLoginHandler(SuccessfulLoginRequest request) {
 		
@@ -712,11 +755,42 @@ public class Messenger extends Application{
         groupNameContainer.getChildren().addAll(groupName, groupNameTextField);
 
         //Create label for users added
-        Label usersAdded = new Label("Users Added:");
+        usersAdded = new Label("Users Added:");
+        updateSelectedContacts(username, true);
 
+     // Create the contactList
+        ListView<String> contactList = new ListView<>(contactListContents);
+        contactList.setPrefWidth(150 * scaleFactor); // set preferred width
+        contactList.setPrefHeight(400 * scaleFactor);
+        	
+      //Add or remove users from the group by clicking them on the contact list
+        contactList.setOnMouseClicked(event -> {
+            String selectedContact = contactList.getSelectionModel().getSelectedItem();
+            if (selectedContact != null) {
+                if (selectedContacts.contains(selectedContact)) {
+                    updateSelectedContacts(selectedContact, false);
+                } else {
+                    updateSelectedContacts(selectedContact, true);
+                }
+            }
+        });
+        
         //Create the "create group" button
         Button createGroupButton = new Button("Create Group");
         createGroupButton.setStyle("-fx-background-color: green;"); // set button color
+        
+        createGroupButton.setOnAction(event -> {
+            if (selectedContacts.size() > 0 && !groupNameTextField.getText().isEmpty()) {
+                String groupNameInput = groupNameTextField.getText();
+                createGroup(groupNameInput, selectedContacts);
+                showAlert("Group Created", "Group '" + groupNameInput + "' was successfully created!");
+                groupNameTextField.clear();
+                selectedContacts.clear();
+                updateSelectedContacts(null, false);
+            } else {
+                showAlert("Error", "Please enter a group name and add at least one contact.");
+            }
+        });
 
         // Add the group name, group name text field, users added, and create group button to the VBox
         groupSettingsElements.getChildren().addAll(groupNameContainer, usersAdded, createGroupButton);
@@ -734,13 +808,39 @@ public class Messenger extends Application{
         Label contactsLabel = new Label ("Contacts");
        
         
-        // Create the contactList
-        ListView<String> contactList = new ListView<>(contactListContents);
-        contactList.setPrefWidth(150 * scaleFactor); // set preferred width
-        contactList.setPrefHeight(400 * scaleFactor);
+        
         
        
         requestAllUsers();
+        
+      //Add or remove users from the group by clicking them on the contact list
+        contactList.setOnMouseClicked(event -> {
+            String selectedContact = contactList.getSelectionModel().getSelectedItem();
+            if (selectedContact != null) {
+                if (selectedContacts.contains(selectedContact)) {
+                    updateSelectedContacts(selectedContact, false);
+                } else {
+                    updateSelectedContacts(selectedContact, true);
+                }
+            }
+        });
+        //Store group conversation on Create group button
+       
+
+      //...
+
+        createGroupButton.setOnAction(event -> {
+            if (selectedContacts.size() > 0 && !groupNameTextField.getText().isEmpty()) {
+                String groupNameInput = groupNameTextField.getText();
+                createGroup(groupNameInput, selectedContacts);
+                showAlert("Group Created", "Group '" + groupNameInput + "' was successfully created!");
+                groupNameTextField.clear();
+                selectedContacts.clear();
+                updateSelectedContacts(null, false);
+            } else {
+                showAlert("Error", "Please enter a group name and add at least one contact.");
+            }
+        });
         
         //Create vbox for contact label and contacts
         VBox vbox2 = new VBox();
@@ -859,9 +959,17 @@ public class Messenger extends Application{
         return stage;
 
     }
-
+    private Label usersAdded;
 	
-	
+	private void updateSelectedContacts(String contact, boolean add) {
+        if (add && !selectedContacts.contains(contact)) {
+            selectedContacts.add(contact);
+        } else {
+            selectedContacts.remove(contact);
+        }
+        selectedContactListContents.setAll(selectedContacts);
+        usersAdded.setText("Users Added: " + String.join(", ", selectedContacts));
+    }
 	
 	public static void main(String[] args) {
 	        launch(args);
