@@ -59,6 +59,7 @@ import javafx.stage.Stage;
 import javafx.scene.control.Alert;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ListCell;
 
 public class Messenger extends Application{
 //DATA MEMBERS
@@ -243,10 +244,12 @@ public class Messenger extends Application{
 	
 	
 	
+
 	private void createGroup(String groupName, ArrayList<String> members) throws IOException {
         NewConvoRequest rq = new NewConvoRequest(members, groupName);
         os.writeObject(rq);
         os.flush();
+
     }
 
     private void showAlert(String title, String content) {
@@ -504,12 +507,36 @@ public class Messenger extends Application{
         Label conversationTitle = new Label("Conversation:");
         
       
-      
+      /*
         //Create the conversationtext area
         conversationTextArea = new TextArea();
         conversationTextArea.setPrefWidth(420 * scaleFactor);
         conversationTextArea.setPrefHeight(400 * scaleFactor);
-
+*/
+        
+        
+        //Create the conversation area using a listview
+        ListView<String> conversationListView = new ListView<>(inboxListContents);
+        try {
+			getConversations();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+        conversationListView.setPrefWidth(420 * scaleFactor); // set preferred width
+        conversationListView.setPrefHeight(400 * scaleFactor);
+        
+        conversationListView.setCellFactory(lv -> {
+            ListCell<String> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(item);
+                    setStyle("-fx-font-size: 10;");
+                }
+            };
+            return cell;
+        });
 
         // Create the log out button
         Button logOutButton = new Button("Log Out");
@@ -632,7 +659,7 @@ public class Messenger extends Application{
         BorderPane layout = new BorderPane();
         VBox vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);
-        vbox.getChildren().addAll(conversationTitle, conversationTextArea);
+        vbox.getChildren().addAll(conversationTitle, conversationListView);
         // Set the VBox container as the center node of the layout
         layout.setCenter(vbox);
         layout.setTop(topBar);
@@ -649,6 +676,8 @@ public class Messenger extends Application{
        
         
         //Send message
+        
+        /*
         sendButton.setOnAction(event -> {
         	sendMessage(textBox.getText());
             //String message = usernameLabel.getText() + ": " + textBox.getText() + "\n";
@@ -665,7 +694,7 @@ public class Messenger extends Application{
 //                ex.printStackTrace();
 //            }
             
-        });
+        });*/
         
         plusButton.setOnAction(e -> {
         	mainStage.hide();
@@ -718,17 +747,15 @@ public class Messenger extends Application{
         Button logOutButton = new Button("Log Out");
         logOutButton.setStyle("-fx-background-color: red;"); // set button color
         
-        //Create group settings area
-        TextArea groupSettings = new TextArea();
         
        // Create a VBox for group settings elements
         VBox groupSettingsElements = new VBox(10);
-        groupSettingsElements.setAlignment(Pos.CENTER_LEFT);
+        groupSettingsElements.setAlignment(Pos.CENTER);
         groupSettingsElements.setPadding(new Insets(5 * scaleFactor, 5 * scaleFactor, 5 * scaleFactor, 5 * scaleFactor));
         
         //Create HBOX for group name and text field
         HBox groupNameContainer = new HBox(5);
-        groupNameContainer.setAlignment(Pos.CENTER_LEFT);
+        groupNameContainer.setAlignment(Pos.CENTER);
 
         //Create textfield for name of group
         Label groupName = new Label("Group Name:");
@@ -793,12 +820,7 @@ public class Messenger extends Application{
        
       
       
-        //Create the conversationtext area
-        ListView<String> selectedContactList = new ListView<>(selectedContactListContents);
-        conversationTextArea = new TextArea();
-        selectedContactList.setPrefWidth(420 * scaleFactor);
-        conversationTextArea.setPrefHeight(400 * scaleFactor);
-
+       
       //Create Contacts label
         Label contactsLabel = new Label ("Contacts");
        
@@ -824,6 +846,7 @@ public class Messenger extends Application{
 
       //...
 
+
         
         //Create vbox for contact label and contacts
         VBox vbox2 = new VBox();
@@ -831,18 +854,10 @@ public class Messenger extends Application{
         vbox2.getChildren().addAll(contactsLabel, contactList);
 
 
-        // Create the conversation
-        TextArea conversation = new TextArea();
-        conversation.setPrefWidth(420 * scaleFactor);
-        conversation.setPrefHeight(400 * scaleFactor);
 
+        
 
-        // Create the text box
-        TextField textBox = new TextField();
-        textBox.setPrefWidth(420 * scaleFactor); 
-
-        // Create the send button
-        Button sendButton = new Button("Send");
+      
 
         // Create the top bar
         HBox topBar = new HBox(10);
@@ -853,61 +868,22 @@ public class Messenger extends Application{
         HBox.setHgrow(logOutButton, Priority.ALWAYS);
        
 
-        // Create the bottom bar
-        HBox bottomBar = new HBox(10);
-        bottomBar.setAlignment(Pos.CENTER_RIGHT);
-        bottomBar.setPadding(new Insets(10 * scaleFactor, 10 * scaleFactor, 10 * scaleFactor, 10 * scaleFactor));
-        bottomBar.getChildren().addAll(textBox, sendButton);
+    
 
         // Create the main layout
         BorderPane layout = new BorderPane();
         VBox vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);
-        vbox.getChildren().addAll(groupSettingsElements, conversation);
+        vbox.getChildren().addAll(groupSettingsElements);
         // Set the VBox container as the center node of the layout
         layout.setCenter(vbox);
         layout.setTop(topBar);
         layout.setLeft(vbox2);
-        layout.setBottom(bottomBar);
+        layout.setBottom(null);
         
         
-     // Put the txt file in the conversation window
-        File selectedFile = new File("src/Empty.txt");
-        if (selectedFile.exists()) {
-            try {
-                // Read the contents of the file using FileReader and BufferedReader
-                FileReader fileReader = new FileReader(selectedFile);
-                BufferedReader bufferedReader = new BufferedReader(fileReader);
-                StringBuilder conversationText = new StringBuilder();
-                String line;
-                while ((line = bufferedReader.readLine()) != null) {
-                    conversationText.append(line).append("\n");
-                }
-                bufferedReader.close();
-                fileReader.close();
-
-                // Set the conversation TextArea text to the contents of the file
-                conversation.setText(conversationText.toString());
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-        
-        //Send message
-        sendButton.setOnAction(event -> {
-            String message = usernameLabel.getText() + ": " + textBox.getText() + "\n";
-            conversation.appendText(message);
-            textBox.clear();
-
-            try {
-                // Open the convo.txt file in append mode and write the message to it
-                FileWriter fileWriter = new FileWriter("src/Sandy.txt", true);
-                fileWriter.write(message);
-                fileWriter.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        });
+    
+     
         
         // Set action for Home button
         homeButton.setOnAction(e -> {

@@ -55,7 +55,7 @@ public class Server {
 	        try {
 	  
 	            // create file object
-	            File file = new File("MessagingApp/src/application/users.txt");
+	            File file = new File("src/application/users.txt");
 	  
 	            // create BufferedReader object from the File
 	            br = new BufferedReader(new FileReader(file));
@@ -99,7 +99,7 @@ public class Server {
 
 		public void loadConversations() throws IOException, ClassNotFoundException {
 			//create conversation for every text file 1.txt, 2.txt...
-			File file = new File("MessagingApp/src/application/Server.txt");
+			File file = new File("src/application/Server.txt");
 			
 			 // create BufferedReader object from the File
             BufferedReader br = new BufferedReader(new FileReader(file));
@@ -109,7 +109,7 @@ public class Server {
             System.out.println("Conversations on server ="+ convonum);
             
             for(int i =0;i < this.convoNumber; i++) {
-            	String location = "MessagingApp/src/application/"+i+".txt";
+            	String location = "src/application/"+i+".txt";
             	file = new File(location);
             	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
             	Conversation temp = (Conversation)ois.readObject();
