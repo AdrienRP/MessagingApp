@@ -88,6 +88,16 @@ public class Messenger extends Application{
 		reciever();
 		
 	}
+	public void restart() throws UnknownHostException, IOException {
+		stop();
+		this.socket = new Socket("127.0.0.1", Server.PORT);
+
+		//create input/ output streams
+		this.os = new ObjectOutputStream(socket.getOutputStream());
+		this.is = new ObjectInputStream(socket.getInputStream()); 
+		reciever();
+		
+	}
 //START
 	@Override
 	public void start(Stage arg0) throws Exception {
@@ -745,6 +755,20 @@ public class Messenger extends Application{
             
         });
         
+        logOutButton.setOnAction(e -> {
+            
+    		try {
+				restart();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+        	mainStage.hide();
+    		mainStage.setScene(loginScene());
+    		mainStage.show();
+          
+        });
+        
         plusButton.setOnAction(e -> {
         	mainStage.hide();
 			try {
@@ -944,6 +968,13 @@ public class Messenger extends Application{
         
         // Set action for logout button
         logOutButton.setOnAction(e -> {
+    
+    		try {
+				restart();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
         	mainStage.hide();
     		mainStage.setScene(loginScene());
     		mainStage.show();
