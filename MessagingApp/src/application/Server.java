@@ -158,9 +158,12 @@ public class Server {
 				thread.start();
 				
 			}
+	
 			
 		
 		}
+		
+
 		public static void main(String[] args) throws IOException, ClassNotFoundException {
 			//create server
 			Server server = new Server();

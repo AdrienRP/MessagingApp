@@ -99,8 +99,27 @@ public class Messenger extends Application{
 //STOP
 	public void stop() throws IOException {
 		//close sockets
-		close();
+		
+		os.writeObject(new Request("ClosedClient"));
+		os.flush();
 		System.out.println("closed");
+		closeMessenger();
+	}
+	public void closeMessenger() {
+		
+		try {
+			if(this.os != null) {
+				this.os.close();
+			}
+			if(this.is != null) {
+				this.is.close();
+			}
+			if(this.socket != null) {
+				this.socket.close();
+			}
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 //METHODS	
 	
@@ -176,10 +195,6 @@ public class Messenger extends Application{
 		}).start();
 	}
 		
-	public void close() throws IOException {
-		this.os.close();
-		this.socket.close();
-	}
 
 //USER ACTIONS	
 	//user data

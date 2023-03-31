@@ -105,6 +105,23 @@ public class ClientHandler implements Runnable {
 		handleServer.start();		
 	
 	}
+	public void closeClient() {
+		clientList.remove(this);
+		System.out.println(this.username + " has logged off");
+		try {
+			if(this.in != null) {
+				this.in.close();
+			}
+			if(this.out != null) {
+				this.out.close();
+			}
+			if(this.client != null) {
+				this.client.close();
+			}
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
 	public String getUsername() {
 		return this.username;
 	}
@@ -119,6 +136,11 @@ public class ClientHandler implements Runnable {
     		attemptLogin(loginRequest);
     
     		break;
+    	case "ClosedClient":
+    		closeClient();
+    		
+    		break;
+    		
     		//listen for broadcast request
     	case "BroadcastRequest":
     		System.out.println("Broadcasting new messasge");
