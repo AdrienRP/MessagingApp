@@ -293,7 +293,12 @@ public class Messenger extends Application{
 			if(convo.getConversationID() == id) {
 				convo.addMessage(newmsg);
 				Platform.runLater(() -> {
-					if (activeConversation == null || convo.getConversationID() != activeConversation.getConversationID()) showAlert("Inbox", "You've got mail!");
+					if (activeConversation == null || convo.getConversationID() != activeConversation.getConversationID()) {
+						convo.setUnread();
+						buildInboxList(conversationList);
+						showAlert("Inbox", "You've got mail!");
+						
+					}
 				});
 								
 				break;
@@ -548,6 +553,7 @@ public class Messenger extends Application{
         // Create the username label
         Label usernameLabel = new Label(username);
 
+
         //Create the drop down list
         ComboBox<String> onlineStatusDropdown = new ComboBox<>();
         onlineStatusDropdown.getItems().addAll("Online", "Away", "Busy", "Out to Lunch", "On the Phone", "Away from Desk");
@@ -620,7 +626,10 @@ public class Messenger extends Application{
         
         inboxListView.setOnMouseClicked(event -> {
         	activeConversation = conversationList.get(inboxListView.getSelectionModel().getSelectedIndex());
+        	activeConversation.setRead();
         	loadActiveConversation();
+        	buildInboxList(conversationList);
+        	conversationTitle.setText("Conversation: " + activeConversation.getGroupName() + " with " + activeConversation.getMembers());
         });
         
 //        inboxListView.setOnMouseClicked(event -> {

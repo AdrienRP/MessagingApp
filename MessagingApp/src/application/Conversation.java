@@ -15,6 +15,7 @@ public class Conversation implements Serializable{
 	private ArrayList<Message> messages = new ArrayList<>();
 	private String groupName;
 	public static ArrayList<Conversation> convoList = new ArrayList<>();
+	private boolean unread = false;
 	
 	
 	
@@ -63,7 +64,7 @@ public class Conversation implements Serializable{
 		return this.messages;
 	}
 	public String getGroupName() {
-		return this.groupName;
+		return unread? ("*" + this.groupName):this.groupName;
 	}
 	public static ArrayList<Conversation> getConvoList(){
 		return Conversation.convoList;
@@ -78,5 +79,17 @@ public class Conversation implements Serializable{
 	public void addMessage(Message message) {
 		this.messages.add(message);
 		
+	}
+	
+	public void setUnread() {
+		this.unread = true;
+	}
+	
+	public void setRead() {
+		this.unread = false;
+	}
+	
+	public boolean isUnread() {
+		return this.unread;
 	}
 }
