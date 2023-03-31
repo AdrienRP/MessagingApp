@@ -138,8 +138,7 @@ public class ClientHandler implements Runnable {
     		break;
     		
     	case "NewConvoRequest":
-    		NewConvoRequest newConvoRequest = (NewConvoRequest) request;
-    		newConvoRequest(newConvoRequest);
+    		makeNewConvo(((NewConvoRequest) request).getGroupName(),((NewConvoRequest) request).getMembers() );
     		break;
     	
     	case "GetAllUsersRequest":
@@ -261,31 +260,17 @@ public class ClientHandler implements Runnable {
 		}
 		
 	}
-	public void newConvoRequest(NewConvoRequest request) throws IOException {
-		Conversation conversation = new Conversation(request.getMembers(), request.getGroupName());
-		//if conversation successfully created
-		if(conversation.isUnique()) {
-			//update server.txt for count on server reboot
-		    String str = Integer.toString( Conversation.convoList.size());
-		    BufferedWriter writer = new BufferedWriter(new FileWriter("MessagingApp/src/application/Server.txt"));
-		    writer.write(str);
-		    writer.close();
-			//add conversation to each user in conversation.
-		    ArrayList<String> members = conversation.getMembers();
-		    Request newConversation = new Request("NewConversationRequest",Integer.toString(conversation.getConversation_ID()));
-		    for(String member: members) {
-			   //output conversation to user
-		    	for(ClientHandler client: clientList) {
-		    		if(members.contains(client.getUsername())){
-		    			out.writeObject(newConversation);
-		    			out.flush();
-		    			break;
-		    		}
-		    	}
-		    	
-		   }	
-			
+	//make new conversation object, then send conversations updates to all members of the new conversation
+	public void makeNewConvo(String groupName, ArrayList<String> members) throws IOException {
+		System.out.println("A");
+		new Conversation(members, groupName);
+		for (int i=0; i<clientList.size(); i++) {
+			if (members.contains(clientList.get(i).getUsername())) {
+				GetConversationsRequest rq = new GetConversationsRequest();
+				clientList.get(i).serverRequest(rq);
+			}
 		}
+		
 	}
 	public void sendMessageRequest(MessageRequest request) throws IOException {
 		int id= request.getConversation_ID();

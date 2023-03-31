@@ -225,6 +225,10 @@ public class Messenger extends Application{
 		
 	}
 	
+	public void sendMessage(String text) {
+		//send the request to append message to the convo
+	}
+	
 	public void loadActiveConversation() {
 		Platform.runLater(() -> {
 			displayedMessages.removeAll(displayedMessages);
@@ -240,33 +244,12 @@ public class Messenger extends Application{
 	
 	
 	
-	private void createGroup(String groupName, ObservableList<String> members) {
-        String fileName = groupName + ".txt";
-        File conversationFile = new File("src/" + fileName);
-        
 
-        try {
-            if (conversationFile.createNewFile()) {
-                FileWriter writer = new FileWriter(conversationFile);
+	private void createGroup(String groupName, ArrayList<String> members) throws IOException {
+        NewConvoRequest rq = new NewConvoRequest(members, groupName);
+        os.writeObject(rq);
+        os.flush();
 
-                // Add the current user to the conversation file if they're not already included
-                if (!members.contains(username)) {
-                    members.add(username);
-                }
-
-                for (String contact : members) {
-                    writer.write(contact + "\n");
-                }
-                writer.close();
-
-                // Update the inbox list
-               // inboxListContents.add(groupName);
-            } else {
-                showAlert("Error", "A group with this name already exists.");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private void showAlert(String title, String content) {
@@ -569,7 +552,7 @@ public class Messenger extends Application{
         try {
 			getConversations();
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
+			// 
 			e1.printStackTrace();
 		}
         inboxListView.setPrefWidth(150 * scaleFactor); // set preferred width
@@ -696,19 +679,20 @@ public class Messenger extends Application{
         
         /*
         sendButton.setOnAction(event -> {
-            String message = usernameLabel.getText() + ": " + textBox.getText() + "\n";
-            conversationTextArea.appendText(message);
+        	sendMessage(textBox.getText());
+            //String message = usernameLabel.getText() + ": " + textBox.getText() + "\n";
+            //conversationTextArea.appendText(message);
             textBox.clear();
 
-            try {
-            	  broadcastMessage(message);
-                // Open the convo.txt file in append mode and write the message to it
-            	FileWriter fileWriter = new FileWriter(selectedFile, true);
-                fileWriter.write(message);
-                fileWriter.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+//            try {
+//            	  broadcastMessage(message);
+//                // Open the convo.txt file in append mode and write the message to it
+//            	FileWriter fileWriter = new FileWriter(selectedFile, true);
+//                fileWriter.write(message);
+//                fileWriter.close();
+//            } catch (IOException ex) {
+//                ex.printStackTrace();
+//            }
             
         });*/
         
@@ -717,7 +701,7 @@ public class Messenger extends Application{
 			try {
 				mainStage = create();
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
+		
 				e1.printStackTrace();
 			}
 			mainStage.show();
@@ -753,7 +737,7 @@ public class Messenger extends Application{
         	try {
 				setStatus(onlineStatusDropdown.getValue());
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				// 
 				e.printStackTrace();
 			}
         });
@@ -807,8 +791,21 @@ public class Messenger extends Application{
         createGroupButton.setOnAction(event -> {
             if (selectedContacts.size() > 0 && !groupNameTextField.getText().isEmpty()) {
                 String groupNameInput = groupNameTextField.getText();
-                createGroup(groupNameInput, selectedContacts);
+                ArrayList<String> tempToPass = new ArrayList<>();
+                for (int i=0; i<selectedContacts.size(); i++) {
+                	String string = new String(selectedContacts.get(i));
+                	string = string.replaceAll("\\[.*?\\]", "");
+                	string = string.replaceAll("\\s+", "");
+                	tempToPass.add(string);
+                }
+                try {
+					createGroup(groupNameInput, tempToPass);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
                 showAlert("Group Created", "Group '" + groupNameInput + "' was successfully created!");
+                
                 groupNameTextField.clear();
                 selectedContacts.clear();
                 updateSelectedContacts(null, false);
@@ -849,7 +846,7 @@ public class Messenger extends Application{
 
       //...
 
-      
+
         
         //Create vbox for contact label and contacts
         VBox vbox2 = new VBox();
