@@ -115,7 +115,6 @@ public class Server {
             	Conversation temp = (Conversation)ois.readObject();
             	
             	if (temp.getGroupName().equals("Broadcast")) {
-            		System.out.println("BROADCAST FOUND");
             		userList.forEach((user,status) -> {
             			if (!temp.getMembers().contains(user)) {
             				temp.addMember(user);
@@ -125,7 +124,6 @@ public class Server {
             	
             	Server.allConversations.add(temp);
             	Conversation.convoList.add(temp);
-            	System.out.println(i);
             }
          
 			
@@ -180,12 +178,7 @@ public class Server {
 			server.loadLogin();
 			server.loadConversations();
 			server.startServer();
-			
-			System.out.println("enter command: ");
-			Scanner scanner = new Scanner(System.in);
-			int input = scanner.nextInt();
-			
-			//sadfa
+
 		}
 
 

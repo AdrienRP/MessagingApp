@@ -24,8 +24,6 @@ import Requests.GetConversationsRequest;
 import Requests.SetStatusRequest;
 import Requests.GetAllUsersRequestResponse;
 import Requests.GetAllUsersRequest;
-import Requests.BroadcastMessageRequest;
-import Requests.BroadcastRequest;
 import Requests.ConversationUpdateRequest;
 import Requests.LoginRequest;
 import Requests.MessageRequest;
@@ -145,14 +143,7 @@ public class ClientHandler implements Runnable {
     		closeClient();
     		
     		break;
-    		
-    		//listen for broadcast request
-    	case "BroadcastRequest":
-    		System.out.println("Broadcasting new messasge");
-    		BroadcastRequest broadcastRequest = (BroadcastRequest) request;
-    		sendBroadcast(broadcastRequest);
     	
-    		break;
     	case "GetStatusRequest":
     		getStatusRequest();
     		break;
@@ -162,10 +153,8 @@ public class ClientHandler implements Runnable {
     		updateStatus();
     		break;
     	case "MessageRequest":
-    		System.out.println("server received messsagerequest1");
     		MessageRequest messageRequest = (MessageRequest) request;
     		sendMessageRequest(messageRequest);
-    		System.out.println("server received messsagerequest2");
     		break;
     		
     	case "NewConvoRequest":
@@ -189,8 +178,6 @@ public class ClientHandler implements Runnable {
 	private ArrayList<Conversation> getUsersConversations() {
 		ArrayList<Conversation> list = new ArrayList<>();
 		for(Conversation conv: Server.allConversations) {
-			System.out.println(conv.getGroupName());
-			System.out.println(conv.getMembers().toString());
 			if(conv.getMembers().contains(username)) {
 				list.add(conv);
 			}
@@ -208,7 +195,6 @@ public class ClientHandler implements Runnable {
 	public void getStatusRequest() throws IOException {
 		Request response = new Request("GetStatus",this.status);
 		out.writeObject(response);
-		System.out.println("GetStatusRequest Sorted");
 		
 	}
 	public void setStatusRequest(Request request) throws IOException {
@@ -216,7 +202,6 @@ public class ClientHandler implements Runnable {
 		this.status=request.getMessage();
 		Request response = new Request("GetStatus",this.status);
 		out.writeObject(response);
-		System.out.println("SetStatusRequest Sorted");
 		
 	}
 	private void updateStatus() throws IOException {
@@ -278,22 +263,9 @@ public class ClientHandler implements Runnable {
 	
 
 
-	public void sendBroadcast(BroadcastRequest request) throws IOException {
-		//for ({type of obeject} {name of each item} : {list})
-		BroadcastMessageRequest message = new BroadcastMessageRequest(request.getMessage(), this.username);
-			
-		for (ClientHandler client: clientList) {
-			if(!client.username.equals(this.username)) {
-				client.out.writeObject(message);
-				client.out.reset();
-			}
-			
-		}
-		
-	}
+
 	//make new conversation object, then send conversations updates to all members of the new conversation
 	public void makeNewConvo(String groupName, ArrayList<String> members) throws IOException {
-		System.out.println("A");
 		new Conversation(members, groupName);
 		//increase file count
 		File file = new File("MessagingApp/src/application/Server.txt");
@@ -318,7 +290,6 @@ public class ClientHandler implements Runnable {
         int id= request.getConversation_ID();
         //find conversation to send message to
         for(Conversation convo: Server.allConversations) {
-        	System.out.println(convo.getConversationID());
             if (convo.getConversation_ID() == id) {
                 //add message to conversation
                 Message message = new Message(request.getSender(), request.getMessage());
@@ -330,19 +301,14 @@ public class ClientHandler implements Runnable {
                  ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
                  oos.writeObject(convo);
                  oos.close();
-                 System.out.println("Conversatin updated: "+Integer.toString(convo.getConversation_ID()));
                  
                  
                  //notify active users of update
                  for(ClientHandler client: clientList) {
-                	System.out.println("user list =" + convo.getMembers());
-                 	System.out.println("checking " + client.username);
                      if(convo.getMembers().contains(client.username)) {
-                     	System.out.println("update " + client.username);
                      	ConversationUpdateRequest rq = new ConversationUpdateRequest(id, message.getUser(), message.getMessages());
              			client.out.writeObject(rq);
              			client.out.flush();
-             			System.out.println("update sent to "+ client.username);
                      	
                      }
                  }

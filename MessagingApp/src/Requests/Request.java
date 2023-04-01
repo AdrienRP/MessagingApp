@@ -1,6 +1,5 @@
 package Requests;
 import java.io.Serializable;
-import java.util.ArrayList;
 
 public class Request implements Serializable{
 //datamembers

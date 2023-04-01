@@ -14,8 +14,6 @@ import Requests.GetConversationsRequestResponse;
 import Requests.GetConversationsRequest;
 import Requests.GetAllUsersRequestResponse;
 import Requests.GetAllUsersRequest;
-import Requests.BroadcastMessageRequest;
-import Requests.BroadcastRequest;
 import Requests.ConversationUpdateRequest;
 import Requests.LoginRequest;
 import Requests.Request;
@@ -147,18 +145,11 @@ public class Messenger extends Application{
 				    	
 				    	switch(incoming.getType()) {
 				    	case "SuccessfulLoginRequest":
-				    		System.out.println("package Received in switch case");
 				    		SuccessfulLoginHandler((SuccessfulLoginRequest)incoming);
-				    		System.out.println(certification);
 				    		
 				    		break;
-				    	case "BroadcastMessage":
-				    		System.out.println("broadcast message received");
-				    		broadcastMessageReceived((BroadcastMessageRequest)incoming);
-				    		
-				    		break;
+
 				    	case "GetStatus":
-				    		System.out.println("status update: " + incoming.getMessage());
 				    		break;
 				    		
 				    	case "GetAllUsersRequestResponse":
@@ -170,22 +161,16 @@ public class Messenger extends Application{
 				    		break;
 				    		
 				    	case "GetConversationsRequestResponse":
-				    		System.out.println("got updated convos");
 				    		GetConversationsRequestResponse request = (GetConversationsRequestResponse) incoming;
 				    		//updateConversation(request);
 				    		buildInboxList(((GetConversationsRequestResponse) incoming).getConversations());
 				    		loadActiveConversation();
 				    		break;
-				    	case "ConversationUpdateRequest":
-				    		System.out.println("Conversatino update request received");
-				    		
+				    	case "ConversationUpdateRequest":	
 				    		ConversationUpdateRequest rq = (ConversationUpdateRequest)incoming;
 				    		updateConversation(rq);
-				    		System.out.println("conversation updated");
 				    		buildInboxList(conversationList);
-				    		System.out.println("buildInboxList executed");
 				    		loadActiveConversation();
-				    		System.out.println("loadActiveConversation executed");
 				    		
 				    		break;
 				    		
@@ -257,11 +242,6 @@ public class Messenger extends Application{
 			for(Conversation convo: conversations) {
 				conversationList.add(convo);
 				inboxListContents.add(new String(convo.getGroupName()));
-				//testing
-				for(Message msg: convo.getMessages()) {
-					System.out.println(msg.getUser() + ": " + msg.getMessages());
-				}
-				//testing
 			}
 		});
 		
@@ -331,13 +311,11 @@ public class Messenger extends Application{
 
 		    if (!request.getResult()) {
 		        this.certification = false;
-		        System.out.println(request.getMessage());
 		        Platform.runLater(() -> {
 		            errorMessage.setText(request.getMessage()); // Set error message
 		        });
 		    } else {
 		        this.certification = true;
-		        System.out.println(request.getMessage());
 
 		}
 	}
@@ -356,13 +334,11 @@ public class Messenger extends Application{
 		
 		this.os.writeObject(msg);
 		this.os.reset();
-		System.out.println("GetStatus: object sent");
 		
 	}
 	public void getStatusReceived(Request incoming){
 		Platform.runLater(()->{
 			this.status = incoming.getMessage();
-			System.out.println("Status: " +this.status);
 			
 		});
 		
@@ -382,16 +358,7 @@ public class Messenger extends Application{
 		os.flush();
 	}
 	//send messages
-	
-	public void testMessage(String hello) throws IOException, ClassNotFoundException {
 
-		Request msg = new Request( hello);
-		
-		this.os.writeObject(msg);
-		this.os.reset();
-		System.out.println("test: object sent");
-		
-	}
 	public void newConvoRequest(ArrayList<String> members) throws IOException {
 		members.add(this.username);
 		NewConvoRequest newConvoRequest = new NewConvoRequest(members);
@@ -417,23 +384,6 @@ public class Messenger extends Application{
 		System.out.println("MessageRequest Sent");
 	}
 
-	
-	public void broadcastMessage(String message) throws IOException {
-		BroadcastRequest broadcast = new BroadcastRequest(message);
-		this.os.writeObject(broadcast);
-		this.os.reset();
-		System.out.println("broadcast message sent");
-	}
-	
-	private void broadcastMessageReceived(BroadcastMessageRequest incoming) {
-		 Platform.runLater(() -> {
-		        System.out.println(">>>BROADCAST<<<");
-		        String receivedMessage = incoming.getUser() + ": " + incoming.getMessage();
-		        System.out.println(receivedMessage);
-		        conversationTextArea.appendText(receivedMessage + "\n");
-		        System.out.println(">>>BROADCAST<<<");
-		    });
-	}
 	
 	public Socket getSocket() {
 		return this.socket;
@@ -632,75 +582,6 @@ public class Messenger extends Application{
         	conversationTitle.setText("Conversation: " + activeConversation.getGroupName() + " with " + activeConversation.getMembers());
         });
         
-//        inboxListView.setOnMouseClicked(event -> {
-//            selectedFile = inboxListView.getSelectionModel().getSelectedItem();
-//            if (selectedFile != null) {
-//                try {
-//                	/*
-//                    // Read the contents of the text file using FileReader and BufferedReader
-//                	//for(Conversation convo : Conversation.convoList){
-//                	//	covo.getMembers.contains(this.username){
-//                			convo.getmessages{
-//                				print convo.getmessages.getSender
-//                				print convo.getmessages.getmessage
-//                	//		}
-//                	//
-//                	 * */
-//                	
-//                    FileReader fileReader = new FileReader(selectedFile);
-//                    BufferedReader bufferedReader = new BufferedReader(fileReader);
-//                    StringBuilder conversationText = new StringBuilder();
-//                    String line;
-//                    while ((line = bufferedReader.readLine()) != null) {
-//                        conversationText.append(line).append("\n");
-//                    }
-//                    bufferedReader.close();
-//                    fileReader.close();
-//
-//                    // Set the conversation TextArea text to the contents of the text file
-//                    conversationTextArea.setText(conversationText.toString());
-//
-//                } catch (IOException ex) {
-//                    ex.printStackTrace();
-//                }
-//                //Change conversation name based on which conversation is clicked in the inbox
-//                selectedFile = inboxListView.getSelectionModel().getSelectedItem();
-//                if (selectedFile != null) {
-//                    String conversationTitleText = selectedFile.getName();
-//                    conversationTitle.setText(conversationTitleText);
-//                    try {
-//                        // Read the contents of the text file using FileReader and BufferedReader
-//                        FileReader fileReader = new FileReader(selectedFile);
-//                        BufferedReader bufferedReader = new BufferedReader(fileReader);
-//                        StringBuilder conversationText = new StringBuilder();
-//                        String line;
-//                        while ((line = bufferedReader.readLine()) != null) {
-//                            conversationText.append(line).append("\n");
-//                        }
-//                        bufferedReader.close();
-//                        fileReader.close();
-//
-//                        // Set the conversation TextArea text to the contents of the text file
-//                        conversationTextArea.setText(conversationText.toString());
-//
-//                    } catch (IOException ex) {
-//                        ex.printStackTrace();
-//                    }
-//                }
-//            }
-//        });
-
-        // Add the files to the inbox
-//        File[] files = new File("MessagingApp/src").listFiles();
-//        if (files != null) {
-//            // Sort the files based on last modified time (most recent first)
-//            Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
-//            for (File file : files) {
-//                if (file.isFile() && file.getName().endsWith(".txt")) {
-//                    inboxListView.getItems().add(file);
-//                }
-//            }
-//        }
         
         // Create the text box
         TextField textBox = new TextField();
@@ -753,7 +634,7 @@ public class Messenger extends Application{
         sendButton.setOnAction(event -> {
         	try {
 				sendMessage(activeConversation.getConversationID(), textBox.getText());
-				System.out.println(activeConversation.getConversationID() + " " + textBox.getText());
+				
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -762,15 +643,7 @@ public class Messenger extends Application{
             //conversationTextArea.appendText(message);
             textBox.clear();
 
-//            try {
-//            	  broadcastMessage(message);
-//                // Open the convo.txt file in append mode and write the message to it
-//            	FileWriter fileWriter = new FileWriter(selectedFile, true);
-//                fileWriter.write(message);
-//                fileWriter.close();
-//            } catch (IOException ex) {
-//                ex.printStackTrace();
-//            }
+
             
         });
         

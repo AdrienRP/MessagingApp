@@ -95,4 +95,5 @@ public class Conversation implements Serializable{
 	public boolean isUnread() {
 		return this.unread;
 	}
+	
 }
