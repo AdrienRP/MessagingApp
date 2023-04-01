@@ -114,6 +114,15 @@ public class Server {
             	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
             	Conversation temp = (Conversation)ois.readObject();
             	
+            	if (temp.getGroupName().equals("Broadcast")) {
+            		System.out.println("BROADCAST FOUND");
+            		userList.forEach((user,status) -> {
+            			if (!temp.getMembers().contains(user)) {
+            				temp.addMember(user);
+            			}
+            		});
+            	}
+            	
             	Server.allConversations.add(temp);
             	Conversation.convoList.add(temp);
             	System.out.println(i);

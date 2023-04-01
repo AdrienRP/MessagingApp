@@ -57,6 +57,9 @@ public class Conversation implements Serializable{
 	public ArrayList<String> getMembers(){
 		return this.members;
 	}
+	public void addMember(String user) {
+		this.members.add(user);
+	}
 	public String getConversationType() {
 		return this.conversationType;
 	}

@@ -23,5 +23,13 @@ public class Message implements Serializable{
 	public String getMessages() {
 		return this.message;
 	}
+	
+	public boolean isDeleted() {
+		return deleted;
+	}
+	
+	public void delete() {
+		deleted = true;
+	}
 
 }

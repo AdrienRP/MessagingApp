@@ -273,7 +273,7 @@ public class Messenger extends Application{
 			displayedMessages.removeAll(displayedMessages);
 			try {
 				for (Message msg: activeConversation.getMessages()) {
-					displayedMessages.add(new String(msg.getUser() + ": " + msg.getMessages()));
+					if (!msg.isDeleted())displayedMessages.add(new String(msg.getUser() + ": " + msg.getMessages()));
 					
 				}
 			} catch (Exception e) {
@@ -706,6 +706,9 @@ public class Messenger extends Application{
         TextField textBox = new TextField();
         textBox.setPrefWidth(420 * scaleFactor); 
 
+     // Create the delete button
+        Button deleteButton = new Button("Delete Selected Message");
+        	
         // Create the send button
         Button sendButton = new Button("Send");
 
@@ -722,7 +725,7 @@ public class Messenger extends Application{
         HBox bottomBar = new HBox(10);
         bottomBar.setAlignment(Pos.CENTER_RIGHT);
         bottomBar.setPadding(new Insets(10 * scaleFactor, 10 * scaleFactor, 10 * scaleFactor, 10 * scaleFactor));
-        bottomBar.getChildren().addAll(textBox, sendButton);
+        bottomBar.getChildren().addAll(deleteButton ,textBox, sendButton);
 
         // Create the main layout
         BorderPane layout = new BorderPane();
@@ -772,8 +775,12 @@ public class Messenger extends Application{
         });
         
         logOutButton.setOnAction(e -> {
-            
+        	//groupNameTextField.clear();
+            selectedContacts.clear();
+            //updateSelectedContacts(null, false);
+        		
     		try {
+    			
 				restart();
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
@@ -794,6 +801,11 @@ public class Messenger extends Application{
 				e1.printStackTrace();
 			}
 			mainStage.show();
+        });
+        
+        deleteButton.setOnAction(e -> {       	
+        	activeConversation.getMessages().get(conversationListView.getSelectionModel().getSelectedIndex()).delete();
+        	
         });
         
         // Create the scene
@@ -984,7 +996,9 @@ public class Messenger extends Application{
         
         // Set action for logout button
         logOutButton.setOnAction(e -> {
-    
+        	groupNameTextField.clear();
+            selectedContacts.clear();
+            updateSelectedContacts(null, false);
     		try {
 				restart();
 			} catch (IOException e1) {
